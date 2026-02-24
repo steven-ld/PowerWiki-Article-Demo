@@ -102,7 +102,7 @@ function helloWorld() {
 
 ### 本地图片
 
-![PowerWiki Logo](./images/powerwiki-logo.png)
+![PowerWiki Logo](https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png)
 
 ### 网络图片
 
@@ -110,7 +110,7 @@ function helloWorld() {
 
 ### 带链接的图片
 
-[![PowerWiki](./images/powerwiki-logo.png)](https://github.com/steven-ld/PowerWiki)
+[![GitHub](https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png)](https://github.com/steven-ld/PowerWiki)
 
 ## 表格
 

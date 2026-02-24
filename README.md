@@ -1,124 +1,24 @@
 ---
-title: PowerWiki 用户演示文档
+title: PowerWiki 用户指南
 description: PowerWiki - 现代化的基于Git的Markdown知识库系统
 author: PowerWiki Team
 date: 2026-02-07
 keywords: PowerWiki, Wiki, Markdown, Git, 知识管理
-tags: [PowerWiki, Wiki, 知识库]
+tags: [PowerWiki, Wiki, 知识库, 教程]
 ---
 
-# PowerWiki 用户演示文档
+# PowerWiki 用户指南
 
-欢迎来到 PowerWiki 的完整演示指南！本文档将为您介绍 PowerWiki 的核心功能和使用方法。
+欢迎使用 PowerWiki！本指南将帮助您快速上手并充分利用 PowerWiki 的各项功能。
 
-## 📖 目录
+## 目录
 
-- [PowerWiki 介绍](#powerwiki-介绍)
-- [核心功能](#核心功能)
 - [快速开始](#快速开始)
+- [配置说明](#配置说明)
 - [功能演示](#功能演示)
+- [文件组织](#文件组织)
 - [部署指南](#部署指南)
-- [最佳实践](#最佳实践)
 - [使用案例](#使用案例)
-
-## PowerWiki 介绍
-
-### 什么是 PowerWiki？
-
-PowerWiki 是一个现代化的、基于 Git 的 Markdown 知识库系统，具有以下特点：
-
-- **Git 驱动** - 所有内容存储在 Git 仓库中，版本控制天然支持
-- **Markdown 格式** - 使用简洁的 Markdown 语法编写文档
-- **自动同步** - 自动从 Git 仓库同步最新内容
-- **零数据库** - 无需数据库，纯文件系统存储
-- **开箱即用** - 克隆即用，无需复杂配置
-- **隐私优先** - 所有数据存储在您控制的环境中
-
-### 设计理念
-
-PowerWiki 基于以下核心理念设计：
-
-1. **简洁即力量** - Markdown + Git 是最简单且经过验证的知识管理方案
-2. **为开发者而生** - 语法高亮、本地图片支持、Git 工作流
-3. **开箱即用** - 零学习成本，克隆即可使用
-4. **数据永久性** - 纯文本存储，随时可迁移到任何平台
-5. **隐私安全** - 无需注册，无云依赖，完全自主控制
-
-## 核心功能
-
-### 1. 自动同步 (Auto Sync)
-
-PowerWiki 会定期自动从 Git 仓库同步最新内容，无需手动刷新。
-
-**配置示例：**
-```json
-{
-  "autoSyncInterval": 180000
-}
-```
-
-### 2. 语法高亮 (Syntax Highlighting)
-
-支持 100+ 种编程语言的代码高亮，由 highlight.js 提供支持。
-
-**示例代码块：**
-```javascript
-function helloWorld() {
-  console.log('Hello, PowerWiki!');
-}
-```
-
-### 3. 响应式设计 (Responsive Design)
-
-完美适配所有设备 - 桌面、平板、手机。
-
-### 4. 自动目录生成 (Auto TOC)
-
-自动生成文章目录，方便快速导航。
-
-### 5. 现代化 UI
-
-采用飞书风格的简洁现代界面，提供优秀的用户体验。
-
-### 6. PDF 支持
-
-支持 PDF 文件渲染为图片显示。
-
-### 7. 浏览统计 (View Statistics)
-
-自动追踪文章浏览次数。
-
-### 8. SEO 优化
-
-完整的 SEO 优化支持，包括元标签、结构化数据等。
-
-### 9. Frontmatter 支持
-
-支持 YAML Frontmatter 元数据：
-
-```yaml
----
-title: 文章标题
-description: 文章描述
-author: 作者名称
-date: 2026-02-07
-updated: 2026-02-07
-keywords: 关键词1, 关键词2
-tags: [标签1, 标签2]
----
-```
-
-### 10. 本地图片支持
-
-支持相对路径引用本地图片，自动转换为可访问的 API URL。
-
-### 11. 多语言支持
-
-支持中文、英文等多种语言，可自定义语言包。
-
-### 12. Docker 支持
-
-完整的 Docker 支持，一键部署。
 
 ## 快速开始
 
@@ -127,7 +27,7 @@ tags: [标签1, 标签2]
 - Node.js >= 14.0.0
 - Git
 
-### 方式一：Docker（推荐）
+### Docker 部署（推荐）
 
 ```bash
 # 克隆仓库
@@ -142,7 +42,9 @@ cp config.example.json config.json
 docker-compose up -d
 ```
 
-### 方式二：Node.js
+访问 `http://localhost:3150` 即可使用。
+
+### Node.js 部署
 
 ```bash
 # 克隆仓库
@@ -154,7 +56,6 @@ npm install
 
 # 创建配置文件
 cp config.example.json config.json
-# 编辑 config.json
 
 # 启动服务
 npm start
@@ -162,53 +63,7 @@ npm start
 
 访问 `http://localhost:3150` 即可使用。
 
-## 功能演示
-
-### 文件组织结构
-
-PowerWiki 支持分层文件夹结构组织文章：
-
-```
-your-wiki-repo/
-├── README.md              # 首页
-├── ABOUT.md               # 关于页面
-├── images/                # 全局图片目录
-├── 架构设计/              # 分类文件夹
-│   ├── images/            # 分类图片
-│   ├── IoT设备标准化.md
-│   ├── TLS加密算法.md
-│   └── README.md          # 分类索引
-├── 项目实践/              # 另一个分类
-│   ├── images/
-│   ├── 短链接服务.md
-│   └── README.md
-└── 音视频/
-    ├── images/
-    ├── WebRTC信令.md
-    └── README.md
-```
-
-### 图片引用方式
-
-PowerWiki 支持多种图片引用方式：
-
-```markdown
-# 方式1：使用当前目录的 images 文件夹（推荐）
-![图片描述](./images/pic.png)
-
-# 方式2：使用父目录的 images 文件夹
-![图片描述](../images/pic.png)
-
-# 方式3：使用绝对路径（相对于仓库根目录）
-![图片描述](/images/pic.png)
-
-# 方式4：直接引用（无需 ./ 或 ../ 前缀）
-![图片描述](images/pic.png)
-```
-
-支持的图片格式：PNG、JPG/JPEG、GIF、WEBP、SVG、ICO
-
-### 配置选项
+## 配置说明
 
 编辑 `config.json` 自定义您的 Wiki：
 
@@ -236,71 +91,8 @@ PowerWiki 支持多种图片引用方式：
 | `port` | 服务端口 | `3150` |
 | `siteTitle` | 网站标题 | `PowerWiki` |
 | `siteDescription` | 网站描述 | `Wiki` |
+| `language` | 界面语言 (zh-CN/en/ja/ko/es/fr/de/ru) | `zh-CN` |
 | `autoSyncInterval` | 自动同步间隔（毫秒） | `180000` |
-| `pages.home` | 首页文件 | `""` |
-| `pages.about` | 关于页面文件 | `""` |
-
-## 部署指南
-
-### Docker 部署
-
-#### 快速启动
-
-```bash
-docker run -d -p 3150:3150 sayunchuan/powerwiki
-```
-
-访问 `http://localhost:3150`
-
-#### 挂载配置文件
-
-```bash
-docker run -d -p 3150:3150 \
-  -v /path/to/config.json:/app/config.json \
-  sayunchuan/powerwiki
-```
-
-#### 持久化数据
-
-```bash
-docker run -d -p 3150:3150 \
-  -v /path/to/config.json:/app/config.json \
-  -v /path/to/data:/app/data \
-  sayunchuan/powerwiki
-```
-
-### Docker Compose 部署
-
-创建 `docker-compose.yml`：
-
-```yaml
-version: '3.8'
-services:
-  powerwiki:
-    image: sayunchuan/powerwiki:latest
-    ports:
-      - "3150:3150"
-    environment:
-      - NODE_ENV=production
-      - DATA_DIR=/app/data
-      - GIT_CACHE_DIR=/app/cache
-      - LANG=zh-CN
-    volumes:
-      - ./config.json:/app/config.json:ro
-      - powerwiki_data:/app/data
-      - powerwiki_cache:/app/cache
-    restart: unless-stopped
-
-volumes:
-  powerwiki_data:
-  powerwiki_cache:
-```
-
-启动服务：
-
-```bash
-docker-compose up -d
-```
 
 ### 环境变量
 
@@ -309,33 +101,119 @@ docker-compose up -d
 | `CONFIG_PATH` | `/app/config.json` | 配置文件路径 |
 | `DATA_DIR` | `/app/data` | 统计数据和日志目录 |
 | `GIT_CACHE_DIR` | `/app/cache` | Git 仓库缓存目录 |
-| `LANG` | `zh-CN` | 控制台语言（zh-CN 或 en） |
+| `LANG` | `zh-CN` | 控制台语言 |
 
-### 容器信息
+## 功能演示
 
-- **端口**: 3150
-- **运行用户**: root
-- **数据目录**: /app/data
-- **Git 缓存目录**: /app/cache
+PowerWiki 支持丰富的 Markdown 扩展功能，点击以下链接查看演示：
 
-### 重要说明
+- [Markdown 语法演示](./01-功能演示/Markdown语法演示.md) - 完整的 Markdown 语法支持
+- [代码高亮演示](./01-功能演示/代码高亮演示.md) - 100+ 种编程语言语法高亮
+- [图表演示](./01-功能演示/图表演示/) - Mermaid 流程图、时序图、甘特图等
+- [SEO 优化演示](./01-功能演示/SEO优化演示.md) - 元数据和 SEO 最佳实践
+- [响应式设计演示](./01-功能演示/响应式设计演示.md) - 多设备适配展示
 
-- `config.json` 必须在启动容器前存在
-- 使用环境变量自定义数据存储路径
-- 建议使用 Docker Compose 进行生产部署
+### Mermaid 图表类型
 
-## 技术栈
+| 类型 | 说明 | 演示文件 |
+|------|------|----------|
+| 流程图 | 业务流程、工作流 | [流程图演示](./01-功能演示/图表演示/流程图演示.md) |
+| 时序图 | 交互时序 | [时序图演示](./01-功能演示/图表演示/时序图演示.md) |
+| 甘特图 | 项目进度 | [甘特图演示](./01-功能演示/图表演示/甘特图演示.md) |
+| 类图 | 面向对象设计 | [类图演示](./01-功能演示/图表演示/类图演示.md) |
+| 状态图 | 状态机 | [状态图演示](./01-功能演示/图表演示/状态图演示.md) |
+| ER 图 | 数据库设计 | [实体关系图演示](./01-功能演示/图表演示/实体关系图演示.md) |
 
-- **后端**: Express.js
-- **前端**: Vanilla JavaScript
-- **版本控制**: simple-git
-- **Markdown 解析**: marked + highlight.js
-- **PDF 处理**: pdfjs-dist
-- **容器化**: Docker
+### 支持的图片格式
 
-## 许可证
+PNG、JPG/JPEG、GIF、WEBP、SVG、ICO
 
-MIT License - 详见 [LICENSE](LICENSE)
+## 文件组织
+
+### 推荐结构
+
+```
+your-wiki-repo/
+├── README.md              # 首页
+├── ABOUT.md               # 关于页面
+├── images/                # 全局图片目录
+├── 架构设计/              # 分类文件夹
+│   ├── images/            # 分类图片
+│   ├── IoT设备标准化.md
+│   └── README.md          # 分类索引
+└── 项目实践/              # 另一个分类
+    ├── images/
+    └── 短链接服务.md
+```
+
+### 图片引用方式
+
+```markdown
+# 方式1：使用当前目录的 images 文件夹（推荐）
+![图片描述](./images/pic.png)
+
+# 方式2：使用父目录的 images 文件夹
+![图片描述](../images/pic.png)
+
+# 方式3：使用绝对路径（相对于仓库根目录）
+![图片描述](/images/pic.png)
+```
+
+### Frontmatter 元数据
+
+```yaml
+---
+title: 文章标题
+description: 文章描述
+author: 作者名称
+date: 2026-02-07
+updated: 2026-02-07
+keywords: 关键词1, 关键词2
+tags: [标签1, 标签2]
+---
+```
+
+## 部署指南
+
+### Docker 部署
+
+```bash
+# 快速启动
+docker run -d -p 3150:3150 sayunchuan/powerwiki
+
+# 挂载配置文件
+docker run -d -p 3150:3150 \
+  -v /path/to/config.json:/app/config.json \
+  sayunchuan/powerwiki
+
+# 持久化数据
+docker run -d -p 3150:3150 \
+  -v /path/to/config.json:/app/config.json \
+  -v /path/to/data:/app/data \
+  sayunchuan/powerwiki
+```
+
+详细指南请查看：[Docker 部署](./03-部署指南/Docker部署.md)
+
+### Node.js 部署
+
+详细指南请查看：[Node.js 部署](./03-部署指南/Node.js部署.md)
+
+### 生产环境部署
+
+详细指南请查看：[生产环境部署](./03-部署指南/生产环境部署.md)
+
+### 常见问题
+
+详细指南请查看：[常见问题](./03-部署指南/常见问题.md)
+
+## 使用案例
+
+- [个人博客](./05-使用案例/个人博客.md) - 记录学习笔记、技术心得
+- [团队文档](./05-使用案例/团队文档.md) - 团队内部技术文档
+- [项目文档](./05-使用案例/项目文档.md) - 软件项目文档管理
+- [技术笔记](./05-使用案例/技术笔记.md) - 个人学习笔记
+- [知识库](./05-使用案例/知识库.md) - 企业知识管理
 
 ## 相关链接
 
@@ -345,4 +223,4 @@ MIT License - 详见 [LICENSE](LICENSE)
 
 ---
 
-**如果 PowerWiki 对您有帮助，请给项目一个 ⭐ Star！**
+**如果 PowerWiki 对您有帮助，请给项目一个 Star！**

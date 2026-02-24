@@ -15,7 +15,7 @@ tags: [图表, Mermaid, 可视化]
 - [流程图演示](./流程图演示.md) - Flowchart 流程图
 - [时序图演示](./时序图演示.md) - Sequence Diagram 时序图
 - [甘特图演示](./甘特图演示.md) - Gantt Chart 项目管理
-- [关系图演示](./关系图演示.md) - Entity Relationship Diagram
+- [实体关系图演示](./实体关系图演示.md) - Entity Relationship Diagram
 - [状态图演示](./状态图演示.md) - State Diagram 状态转移
 - [类图演示](./类图演示.md) - Class Diagram UML 类图
 
