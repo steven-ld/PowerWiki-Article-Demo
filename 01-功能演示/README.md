@@ -3,6 +3,7 @@ title: PowerWiki 功能演示
 description: PowerWiki 核心功能的详细演示和使用示例
 author: PowerWiki Team
 date: 2026-02-07
+updated: 2026-07-20
 tags: [功能演示, 示例]
 ---
 
@@ -23,6 +24,11 @@ tags: [功能演示, 示例]
 ### 代码示例
 - JavaScript、Python、Java、Go 等多语言代码高亮
 - 代码块复制功能演示
+
+### 阅读体验
+- 一键复制文章 Markdown 原文
+- 原始 / 渲染视图切换
+- 暗夜模式与响应式布局
 
 ### 文档格式
 - 标题、列表、表格、引用等基础格式

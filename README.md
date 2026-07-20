@@ -3,6 +3,7 @@ title: PowerWiki 用户指南
 description: PowerWiki - 现代化的基于Git的Markdown知识库系统
 author: PowerWiki Team
 date: 2026-02-07
+updated: 2026-07-20
 keywords: PowerWiki, Wiki, Markdown, Git, 知识管理
 tags: [PowerWiki, Wiki, 知识库, 教程]
 ---
@@ -12,6 +13,8 @@ tags: [PowerWiki, Wiki, 知识库, 教程]
 > **💡 提示**：您现在看到的这份文档，就是通过 **PowerWiki** 渲染展示的效果。PowerWiki 可以将 Markdown 文件直接转换为美观的 Web 页面，支持 Git 同步、SEO 优化、图表渲染等功能。
 
 欢迎使用 PowerWiki！本指南将帮助您快速上手并充分利用 PowerWiki 的各项功能。
+
+> **🆕 v1.5.0 新特性**：文章页支持一键**复制原文**与**原始 / 渲染**视图切换；配合**暗夜模式**、**Mermaid 图表**和**代码高亮**，阅读与复用文档更顺手。查看完整 [版本历史](./版本历史.md)。
 
 ## 快速开始
 
@@ -212,7 +215,8 @@ docker run -d -p 3150:3150 \
 
 - [GitHub 仓库](https://github.com/steven-ld/PowerWiki)
 - [Docker Hub](https://hub.docker.com/r/sayunchuan/powerwiki)
-- [在线演示](https://ga666666.cn)
+- [在线演示](https://powerwiki.ga666666.cn/)
+- [版本历史](./版本历史.md) - 各版本更新记录
 
 ---
 

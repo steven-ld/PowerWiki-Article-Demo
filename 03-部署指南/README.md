@@ -3,6 +3,7 @@ title: PowerWiki 部署指南
 description: PowerWiki 的完整部署指南，包括 Docker、Node.js 等多种部署方式
 author: PowerWiki Team
 date: 2026-02-07
+updated: 2026-07-20
 tags: [部署, Docker, 安装]
 ---
 
@@ -134,7 +135,7 @@ npm start
 ### 官方资源
 - **PowerWiki GitHub**: [https://github.com/steven-ld/PowerWiki](https://github.com/steven-ld/PowerWiki)
 - **Docker Hub**: [https://hub.docker.com/r/sayunchuan/powerwiki](https://hub.docker.com/r/sayunchuan/powerwiki)
-- **在线演示**: [https://ga666666.cn](https://ga666666.cn)
+- **在线演示**: [https://powerwiki.ga666666.cn/](https://powerwiki.ga666666.cn/)
 
 ### 贡献者
 - **项目创始人**: [@steven-ld](https://github.com/steven-ld)
@@ -187,4 +188,4 @@ npm start
 
 **提示**: 建议使用 Docker 部署，这是最简单、最可靠、最易维护的方式。
 
-**最后更新**: 2026-02-07
+**最后更新**: 2026-07-20
