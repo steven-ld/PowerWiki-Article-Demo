@@ -1,26 +1,42 @@
 ---
 title: PowerWiki 用户指南
-description: PowerWiki - 现代化的基于Git的Markdown知识库系统
+description: PowerWiki v1.5.2 功能体验、部署与使用指南
 author: PowerWiki Team
 date: 2026-02-07
-updated: 2026-07-20
-keywords: PowerWiki, Wiki, Markdown, Git, 知识管理
-tags: [PowerWiki, Wiki, 知识库, 教程]
+updated: 2026-10-10
+tags: [PowerWiki, 教程]
 ---
 
 # PowerWiki 用户指南
 
-> **💡 提示**：您现在看到的这份文档，就是通过 **PowerWiki** 渲染展示的效果。PowerWiki 可以将 Markdown 文件直接转换为美观的 Web 页面，支持 Git 同步、SEO 优化、图表渲染等功能。
+将 Git 仓库里的 Markdown 变成可浏览、可分享的知识库：左侧查找文档，右侧定位章节，中间阅读正文。
 
-欢迎使用 PowerWiki！本指南将帮助您快速上手并充分利用 PowerWiki 的各项功能。
+> 本站本身就是 PowerWiki 的演示。当前文档对应 **v1.5.2**，查看 [版本历史](/post/版本历史.md) 或 [GitHub Release](https://github.com/steven-ld/PowerWiki/releases/tag/v1.5.2)。
 
-> **🆕 v1.5.0 新特性**：文章页支持一键**复制原文**与**原始 / 渲染**视图切换；配合**暗夜模式**、**Mermaid 图表**和**代码高亮**，阅读与复用文档更顺手。查看完整 [版本历史](/post/版本历史.md)。
+![PowerWiki 首页与双侧导航](./images/home.jpg)
+
+## 三分钟体验
+
+| 想体验什么 | 打开哪一页 | 试一试 |
+| --- | --- | --- |
+| 阅读与复用 | [阅读与分享](/post/01-功能演示/阅读与分享.md) | 复制原文、切换原始视图、生成分享短链 |
+| 技术文档 | [代码高亮](/post/01-功能演示/代码高亮演示.md) | 复制代码，通过右侧目录跳到不同语言 |
+| 图表 | [时序图](/post/01-功能演示/图表演示/时序图演示.md) | 查看用户、浏览器与服务的交互 |
+| 图片 | [本地图片](/post/01-功能演示/本地图片演示.md) | 点击图片查看大图，再切换暗夜模式 |
+| 缓存机制 | [性能与缓存](/post/02-核心功能/性能与缓存.md) | 了解更新何时生效、重复阅读如何复用缓存 |
+
+## v1.5.2 更新了什么
+
+- 启动同步完成后预热菜单，重复访问复用菜单和文章缓存。
+- 文档或配置变化后刷新内容；没有变化时避免重复下载。
+- PDF 只渲染可见及附近页面，离开文章时释放渲染资源。
+- 保留原文复制、原始视图和短链分享，支持浅色与暗夜阅读。
 
 ## 快速开始
 
 ### 前置要求
 
-- Node.js >= 14.0.0
+- 建议使用 Node.js 22 LTS；当前 PDF.js 依赖要求 Node.js >= 20.16 或 >= 22.3
 - Git
 
 ### Docker 部署（推荐）
@@ -94,9 +110,9 @@ npm start
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `CONFIG_PATH` | `/app/config.json` | 配置文件路径 |
-| `DATA_DIR` | `/app/data` | 统计数据和日志目录 |
-| `GIT_CACHE_DIR` | `/app/cache` | Git 仓库缓存目录 |
+| `CONFIG_PATH` | 项目根目录 `config.json` | 配置文件路径（Docker 中为 `/app/config.json`） |
+| `DATA_DIR` | 项目根目录 | 统计和日志目录（Docker 中为 `/app/data`） |
+| `GIT_CACHE_DIR` | 项目根目录 `.git-cache` | Git 缓存目录（Docker 中为 `/app/cache`） |
 | `LANG` | `zh-CN` | 控制台语言 |
 
 ## 功能演示
@@ -163,7 +179,7 @@ title: 文章标题
 description: 文章描述
 author: 作者名称
 date: 2026-02-07
-updated: 2026-02-07
+updated: 2026-10-10
 keywords: 关键词1, 关键词2
 tags: [标签1, 标签2]
 ---

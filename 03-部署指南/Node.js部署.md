@@ -3,6 +3,7 @@ title: Node.js 部署指南
 description: PowerWiki 的 Node.js 本地部署和开发指南
 author: PowerWiki Team
 date: 2026-02-07
+updated: 2026-10-10
 tags: [Node.js, 部署, 开发]
 ---
 
@@ -12,7 +13,7 @@ Node.js 部署适合开发者和小规模部署场景，提供更灵活的定制
 
 ## 前置要求
 
-- Node.js >= 14.0.0
+- 建议 Node.js 22 LTS；当前 PDF.js 要求 >= 20.16 或 >= 22.3
 - npm >= 6.0.0
 - Git
 
@@ -99,7 +100,7 @@ NODE_ENV=development
 |------|--------|------|
 | `CONFIG_PATH` | `./config.json` | 配置文件路径 |
 | `DATA_DIR` | `./data` | 统计数据和日志目录 |
-| `GIT_CACHE_DIR` | `./cache` | Git 仓库缓存目录 |
+| `GIT_CACHE_DIR` | `./.git-cache` | Git 仓库缓存目录 |
 | `LANG` | `zh-CN` | 控制台语言（zh-CN 或 en） |
 | `NODE_ENV` | `development` | 运行环境（development 或 production） |
 
@@ -202,17 +203,9 @@ npm install express@latest
 
 ## 性能优化
 
-### 启用缓存
+### 默认内容缓存
 
-编辑 `config.json`：
-
-```json
-{
-  "cacheEnabled": true,
-  "cacheTTL": 3600000,
-  "autoSyncInterval": 180000
-}
-```
+缓存默认启用并按内容版本失效，无需 `cacheEnabled` 或 `cacheTTL` 配置。详见 [性能与缓存](/post/02-核心功能/性能与缓存.md)。
 
 ### 调整自动同步间隔
 
