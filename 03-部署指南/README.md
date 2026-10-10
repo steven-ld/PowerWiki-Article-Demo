@@ -3,7 +3,7 @@ title: PowerWiki 部署指南
 description: PowerWiki 的完整部署指南，包括 Docker、Node.js 等多种部署方式
 author: PowerWiki Team
 date: 2026-02-07
-updated: 2026-07-20
+updated: 2026-10-10
 tags: [部署, Docker, 安装]
 ---
 
@@ -14,16 +14,16 @@ tags: [部署, Docker, 安装]
 ## 📚 部署方式
 
 ### 快速部署
-- [Docker 部署](./Docker部署.md) - **推荐方式**，一键启动，最简单快速
+- [Docker 部署](/post/03-部署指南/Docker部署.md) - **推荐方式**，一键启动，最简单快速
 
 ### 开发部署
-- [Node.js 部署](./Node.js部署.md) - 本地开发和小规模部署，灵活可定制
+- [Node.js 部署](/post/03-部署指南/Node.js部署.md) - 本地开发和小规模部署，灵活可定制
 
 ### 企业部署
-- [生产环境部署](./生产环境部署.md) - 企业级部署方案，包括高可用、性能优化、安全加固
+- [生产环境部署](/post/03-部署指南/生产环境部署.md) - 企业级部署方案，包括高可用、性能优化、安全加固
 
 ### 问题解决
-- [常见问题](./常见问题.md) - 部署过程中的常见问题和解决方案
+- [常见问题](/post/03-部署指南/常见问题.md) - 部署过程中的常见问题和解决方案
 
 ## 🚀 快速开始
 
@@ -59,7 +59,7 @@ npm start
 - Docker Compose >= 1.29（可选）
 
 ### Node.js 方式
-- Node.js >= 14.0.0
+- 建议 Node.js 22 LTS；当前 PDF.js 要求 >= 20.16 或 >= 22.3
 - npm >= 6.0.0
 - Git
 
@@ -85,7 +85,7 @@ npm start
 - 容器管理和数据持久化
 - 网络配置和反向代理
 
-**查看**: [Docker 部署指南](./Docker部署.md)
+**查看**: [Docker 部署指南](/post/03-部署指南/Docker部署.md)
 
 ### 2. Node.js 部署
 
@@ -98,7 +98,7 @@ npm start
 - 性能优化建议
 - 故障排查指南
 
-**查看**: [Node.js 部署指南](./Node.js部署.md)
+**查看**: [Node.js 部署指南](/post/03-部署指南/Node.js部署.md)
 
 ### 3. 生产环境部署
 
@@ -113,7 +113,7 @@ npm start
 - 备份和恢复
 - 安全加固
 
-**查看**: [生产环境部署指南](./生产环境部署.md)
+**查看**: [生产环境部署指南](/post/03-部署指南/生产环境部署.md)
 
 ### 4. 常见问题
 
@@ -128,7 +128,7 @@ npm start
 - 多语言相关问题
 - 版本相关问题
 
-**查看**: [常见问题](./常见问题.md)
+**查看**: [常见问题](/post/03-部署指南/常见问题.md)
 
 ## 🔗 相关链接
 
@@ -180,7 +180,7 @@ npm start
 
 ## ❓ 需要帮助？
 
-- 查看 [常见问题](./常见问题.md)
+- 查看 [常见问题](/post/03-部署指南/常见问题.md)
 - 在 [GitHub Issues](https://github.com/steven-ld/PowerWiki/issues) 提问
 - 查看 [Docker Hub](https://hub.docker.com/r/sayunchuan/powerwiki) 的讨论
 

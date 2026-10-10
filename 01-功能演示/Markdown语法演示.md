@@ -3,6 +3,7 @@ title: Markdown 语法演示
 description: PowerWiki 支持的完整 Markdown 语法
 author: PowerWiki Team
 date: 2026-02-07
+updated: 2026-10-10
 tags: [Markdown, 语法]
 ---
 
@@ -94,7 +95,7 @@ function helloWorld() {
 
 [带标题的链接](https://github.com/steven-ld/PowerWiki "PowerWiki GitHub")
 
-[相对链接](./代码高亮演示.md)
+[相对链接](/post/01-功能演示/代码高亮演示.md)
 
 [锚点链接](#表格)
 

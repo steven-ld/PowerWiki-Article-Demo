@@ -3,6 +3,7 @@ title: 图表演示
 description: Mermaid 图表和可视化演示
 author: PowerWiki Team
 date: 2026-02-07
+updated: 2026-10-10
 tags: [图表, Mermaid, 可视化]
 ---
 
@@ -12,12 +13,12 @@ tags: [图表, Mermaid, 可视化]
 
 ## 📊 演示内容
 
-- [流程图演示](./流程图演示.md) - Flowchart 流程图
-- [时序图演示](./时序图演示.md) - Sequence Diagram 时序图
-- [甘特图演示](./甘特图演示.md) - Gantt Chart 项目管理
-- [实体关系图演示](./实体关系图演示.md) - Entity Relationship Diagram
-- [状态图演示](./状态图演示.md) - State Diagram 状态转移
-- [类图演示](./类图演示.md) - Class Diagram UML 类图
+- [流程图演示](/post/01-功能演示/图表演示/流程图演示.md) - Flowchart 流程图
+- [时序图演示](/post/01-功能演示/图表演示/时序图演示.md) - Sequence Diagram 时序图
+- [甘特图演示](/post/01-功能演示/图表演示/甘特图演示.md) - Gantt Chart 项目管理
+- [实体关系图演示](/post/01-功能演示/图表演示/实体关系图演示.md) - Entity Relationship Diagram
+- [状态图演示](/post/01-功能演示/图表演示/状态图演示.md) - State Diagram 状态转移
+- [类图演示](/post/01-功能演示/图表演示/类图演示.md) - Class Diagram UML 类图
 
 ## 🎯 快速导航
 

@@ -3,6 +3,7 @@ title: 图片管理
 description: PowerWiki 的图片管理和引用方式
 author: PowerWiki Team
 date: 2026-02-07
+updated: 2026-10-10
 tags: [图片, 资源管理]
 ---
 
@@ -231,7 +232,7 @@ images/
 
 ## 🔗 相关文档
 
-- [Markdown 语法演示](../../01-功能演示/Markdown语法演示.md)
+- [Markdown 语法演示](/post/01-功能演示/Markdown语法演示.md)
 
 ---
 
