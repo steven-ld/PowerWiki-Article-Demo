@@ -22,6 +22,25 @@ PowerWiki 不只读取 Markdown。仓库里的 `.html` / `.htm` 文件会和 `.m
 | 安全清洗演示 | [安全清洗演示.html](/post/01-功能演示/HTML页面演示/安全清洗演示.html) | `script`、`onclick`、`style`、`javascript:` 被移除 |
 | 自定义 404 页面 | [自定义404页面.html](/post/01-功能演示/HTML页面演示/自定义404页面.html) | 未命中页面时的兜底配置 |
 
+## 完整交互页面（沙箱模式）
+
+上面四个示例使用默认的**安全清洗**：只保留正文结构，脚本和样式会被移除。如果页面本身就是一个完整的应用——需要脚本、Canvas、WebGL、音频或表单——可以在 `<head>` 里声明沙箱模式：
+
+```html
+<meta name="powerwiki-render" content="sandbox">
+```
+
+声明后，文章正文会嵌入一个 `sandbox` iframe 来运行原始页面，样式与脚本都能生效；同时页面不带 `allow-same-origin`，拿不到 Wiki 的 Cookie、localStorage 与同源接口。原始文件也会在 `/full/<仓库路径>` 下独立提供。
+
+| 演示 | 打开 | 看点 |
+| --- | --- | --- |
+| 交互式落地页 | [交互式落地页.html](/post/01-功能演示/HTML页面演示/交互式落地页.html) | 渐变光晕与鼠标视差、滚动渐入、数字滚动、表单校验 |
+| 数据可视化看板 | [数据看板.html](/post/01-功能演示/HTML页面演示/数据看板.html) | Canvas 折线 / 柱状 / 环形图、悬停提示、每 3 秒实时刷新 |
+| WebGL 与富媒体 | [WebGL与富媒体.html](/post/01-功能演示/HTML页面演示/WebGL与富媒体.html) | 原生 WebGL 着色器立方体、粒子星群、CSS 3D、WebAudio 频谱、SVG 描边 |
+| 文档站风格 | [文档站.html](/post/01-功能演示/HTML页面演示/文档站.html) | 固定侧边栏、滚动目录、主题切换、搜索过滤、标签页、代码复制 |
+
+> 沙箱内是不透明源，`localStorage` 等 Web Storage 会抛异常。上面这些页面只用内存状态，或对存储访问做了 `try / catch`。
+
 ## 收录规则
 
 - 扫描仓库时把 `.html` / `.htm` 视为文章，和 Markdown 并列。
