@@ -49,3 +49,17 @@
 ```
 
 因此页面以完整 HTML 运行（脚本、样式、交互都保留），但 iframe 不含 `allow-same-origin`：页面处于不透明源，读不到 Wiki 的 Cookie、localStorage 或 IndexedDB，也不能调用同源 API。演示里的主题切换对 Web Storage 做了 `try / catch`，写入被拒绝时页面照常工作，只是跳转后主题回到系统默认值。
+
+## 主题同步
+
+沙箱页面读不到 Wiki 的 `data-theme`，父页面会通过 `postMessage` 把界面偏好传进来：
+
+```js
+// 父页面 → 沙箱 iframe
+{ type: 'powerwiki:context', version: 1, theme: 'dark', lang: 'zh-CN' }
+
+// 沙箱也可以先索取一次，减少首屏闪烁
+parent.postMessage({ type: 'powerwiki:request-context' }, '*');
+```
+
+`assets/site.js` 监听 `powerwiki:context` 并调用 `applyTheme()`，因此在文章视图里切换站点主题时，沙箱页面会立即跟着切换；直接打开 `guide/` 等 `/full/` 页面时没有父页面，则使用系统主题。消息只包含主题和语言，不含 Cookie、统计数据或仓库内容。

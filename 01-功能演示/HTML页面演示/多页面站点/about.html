@@ -84,6 +84,24 @@
       </div>
     </section>
 
+    <section class="block" aria-labelledby="context">
+      <h2 id="context">主题同步</h2>
+      <p class="lead">
+        沙箱读不到 Wiki 的 <code>localStorage</code> 和 <code>data-theme</code>，
+        所以父页面会通过 <code>postMessage</code> 把界面偏好传进来；站点切换主题时会再次广播。
+      </p>
+      <pre class="code">// 父页面 → 沙箱 iframe
+{ type: 'powerwiki:context', version: 1, theme: 'dark', lang: 'zh-CN' }
+
+// 沙箱也可以先索取一次，减少首屏闪烁
+parent.postMessage({ type: 'powerwiki:request-context' }, '*');</pre>
+      <div class="callout">
+        <strong>只传界面偏好：</strong>
+        消息里没有 Cookie、统计数据或仓库内容。页面的本地主题按钮仍然可用，
+        下一次站点主题变化时再与站点对齐。
+      </div>
+    </section>
+
     <section class="block" aria-labelledby="stack">
       <h2 id="stack">技术组成</h2>
       <p class="lead">没有构建步骤，全部是仓库里的静态文件。</p>

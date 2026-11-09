@@ -42,6 +42,8 @@ PowerWiki 不只读取 Markdown。仓库里的 `.html` / `.htm` 文件会和 `.m
 
 > 沙箱内是不透明源，`localStorage` 等 Web Storage 会抛异常。上面这些页面只用内存状态，或对存储访问做了 `try / catch`。
 
+沙箱页面可以感知站点主题：父页面会在 iframe 加载完成后、以及站点切换明暗主题时发送 `{ type: 'powerwiki:context', theme, lang }`；页面也可以先 `parent.postMessage({ type: 'powerwiki:request-context' }, '*')` 索取一次。多页面站点和文档站演示都通过这条消息跟随站点主题。
+
 多页面站点演示把多个页面放在同一目录树里：`guide/` 由目录索引解析到 `guide/index.html`，`modules` 由无扩展名规则解析到 `modules.html`，页面之间只用相对路径互相跳转。独立入口是 [`/full/01-功能演示/HTML页面演示/多页面站点/`](/full/01-功能演示/HTML页面演示/多页面站点/)。`/full/` 只放行 HTML 与静态资源，JSON 等数据文件不会暴露，因此共享数据放在 `static/data.js`。
 
 ## 收录规则

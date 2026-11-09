@@ -60,6 +60,27 @@
     });
   });
 
+  /* ---------- 站点上下文（沙箱 iframe） ---------- */
+
+  // 文章沙箱是不透明源，读不到 Wiki 的 data-theme；父页面会通过
+  // postMessage 发送 { type: 'powerwiki:context', theme, lang }。
+  window.addEventListener('message', function (event) {
+    var payload = event.data;
+    if (!payload || payload.type !== 'powerwiki:context') return;
+    if (payload.theme === 'dark' || payload.theme === 'light') {
+      applyTheme(payload.theme);
+    }
+  });
+
+  // 主动索取一次，尽量在首屏绘制前对齐站点主题。
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'powerwiki:request-context' }, '*');
+    }
+  } catch (error) {
+    /* 独立打开 /full/ 页面时没有父页面，使用系统主题即可。 */
+  }
+
   /* ---------- 导航高亮 ---------- */
 
   function activeNav() {
