@@ -626,6 +626,19 @@ git push origin main</code></pre>
         if (saved === 'dark' || saved === 'light') initialTheme = saved;
       } catch (error) { /* 沙箱无存储权限，忽略 */ }
       setTheme(initialTheme);
+      // 沙箱读不到 Wiki 的 data-theme，父页面会通过 postMessage 发送界面偏好。
+      window.addEventListener('message', function (event) {
+        var payload = event.data;
+        if (payload && payload.type === 'powerwiki:context' &&
+            (payload.theme === 'dark' || payload.theme === 'light')) {
+          setTheme(payload.theme);
+        }
+      });
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'powerwiki:request-context' }, '*');
+        }
+      } catch (error) { /* 独立打开时没有父页面，使用系统主题。 */ }
       themeButton.addEventListener('click', function () {
         var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         setTheme(next);
