@@ -1,17 +1,17 @@
 ---
 title: PowerWiki 用户指南
-description: PowerWiki v1.5.2 功能体验、部署与使用指南
+description: PowerWiki v1.6.0 功能体验、部署与使用指南
 author: PowerWiki Team
 date: 2026-02-07
-updated: 2026-10-10
+updated: 2026-11-09
 tags: [PowerWiki, 教程]
 ---
 
 # PowerWiki 用户指南
 
-将 Git 仓库里的 Markdown 变成可浏览、可分享的知识库：左侧查找文档，右侧定位章节，中间阅读正文。
+将 Git 仓库里的 Markdown 与 HTML 变成可浏览、可分享的知识库：左侧查找文档，右侧定位章节，中间阅读正文。
 
-> 本站本身就是 PowerWiki 的演示。当前文档对应 **v1.5.2**，查看 [版本历史](/post/版本历史.md) 或 [GitHub Release](https://github.com/steven-ld/PowerWiki/releases/tag/v1.5.2)。
+> 本站本身就是 PowerWiki 的演示。当前文档对应 **v1.6.0**，查看 [版本历史](/post/版本历史.md) 或 [GitHub Release](https://github.com/steven-ld/PowerWiki/releases/tag/v1.6.0)。
 
 ![PowerWiki 首页与双侧导航](./images/home.jpg)
 
@@ -26,12 +26,12 @@ tags: [PowerWiki, 教程]
 | 图片 | [本地图片](/post/01-功能演示/本地图片演示.md) | 点击图片查看大图，再切换暗夜模式 |
 | 缓存机制 | [性能与缓存](/post/02-核心功能/性能与缓存.md) | 了解更新何时生效、重复阅读如何复用缓存 |
 
-## v1.5.2 更新了什么
+## v1.6.0 更新了什么
 
-- 启动同步完成后预热菜单，重复访问复用菜单和文章缓存。
-- 文档或配置变化后刷新内容；没有变化时避免重复下载。
-- PDF 只渲染可见及附近页面，离开文章时释放渲染资源。
-- 保留原文复制、原始视图和短链分享，支持浅色与暗夜阅读。
+- 仓库里的 HTML 与 Markdown 一起成为文章，完整页面可在隔离沙箱中运行脚本与样式。
+- 沙箱页面跟随站点明暗主题，HTML 文章工具条新增「全屏」入口。
+- 稳定文章地址与 SEO：`slug` / `aliases` 保持链接不变，canonical、Open Graph、RSS 与 sitemap 使用同一地址。
+- 新增上一篇 / 下一篇导航与自定义 404 页面。
 
 ## 快速开始
 
