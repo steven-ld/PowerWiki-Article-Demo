@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>搭建指南 · Aurora Studio</title>
+  <meta name="description" content="四步说明：沙箱声明、目录索引、共享资源与 static/ 数据模块，如何组成一个可用的多页面站点。">
+  <meta name="powerwiki-render" content="sandbox">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <header class="site-header">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      Aurora Studio
+    </a>
+    <nav class="site-nav" aria-label="站点导航">
+      <a href="../index.html" data-nav="home">首页</a>
+      <a href="./" data-nav="guide">指南</a>
+      <a href="../modules" data-nav="modules">模块</a>
+      <a href="../about.html" data-nav="about">关于</a>
+    </nav>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">☾</button>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <p class="eyebrow">GUIDE · DIRECTORY INDEX</p>
+      <h1>搭建这个站点的四步</h1>
+      <p>
+        当前页面是 <code>guide/index.html</code>，而地址栏里访问的是 <code>guide/</code>。
+        目录索引让多页面站点可以像普通网站一样组织链接，而不需要把每个文件名都写进导航。
+      </p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="../modules">看看模块清单 →</a>
+        <a class="button" href="../index.html">返回首页</a>
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="steps">
+      <h2 id="steps">四步</h2>
+      <p class="lead">每一步都对应仓库里的一个真实文件，可以直接对照源码。</p>
+
+      <ol class="steps">
+        <li>
+          <h3>在页面头部声明沙箱模式</h3>
+          <p>只有带这个 meta 的 HTML 才会以完整页面运行；没有它，文章仍然走安全清洗路径。</p>
+          <pre class="code">&lt;meta name="powerwiki-render" content="sandbox"&gt;</pre>
+        </li>
+        <li>
+          <h3>用目录索引组织页面</h3>
+          <p>把页面放进目录并命名为 <code>index.html</code>，链接就可以只写目录名。无扩展名的链接会补 <code>.html</code>。</p>
+          <pre class="code">guide/     →  guide/index.html
+modules    →  modules.html
+about.html →  about.html</pre>
+        </li>
+        <li>
+          <h3>共享 CSS 与 JavaScript</h3>
+          <p>每个页面用相对路径引用同一份资源，子目录页面用 <code>../</code> 回到站点根目录。</p>
+          <pre class="code">&lt;link rel="stylesheet" href="../assets/site.css"&gt;
+&lt;script src="../assets/site.js"&gt;&lt;/script&gt;</pre>
+        </li>
+        <li>
+          <h3>把数据放进 static/ 模块</h3>
+          <p>页面脚本读取数据后渲染列表。数据文件放在 <code>static/</code> 下，和页面资源一起随站点分发。</p>
+          <pre class="code">&lt;script src="../static/data.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  renderModules(window.SITE_DATA.modules);
+&lt;/script&gt;</pre>
+        </li>
+      </ol>
+    </section>
+
+    <section class="block" aria-labelledby="entries">
+      <h2 id="entries">同一份文件，两种入口</h2>
+      <p class="lead">页面内容完全相同，区别只在于由谁来承载它。</p>
+      <div class="grid">
+        <article class="card">
+          <h3>文章视图</h3>
+          <p>
+            通过 <code>/post/…/多页面站点/index.html</code> 打开时，PowerWiki 渲染文章外壳，
+            正文位置是一个 <code>&lt;iframe sandbox&gt;</code>，页面在不透明源里运行。
+          </p>
+        </article>
+        <article class="card">
+          <h3>独立页面</h3>
+          <p>
+            通过 <code>/full/…/多页面站点/</code> 打开时，浏览器直接加载原始 HTML，
+            响应头带 <code>Content-Security-Policy: sandbox …</code>，适合排查问题和单独分享。
+          </p>
+        </article>
+      </div>
+      <div class="callout">
+        <strong>注意：</strong>两种入口都不授予同源权限。页面读不到 Wiki 的 Cookie、localStorage 或 IndexedDB，
+        也不能调用同源 API；主题切换只在当前文档内生效，跳转后会回到系统默认值。
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <span>© <span data-year>2026</span> Aurora Studio · 多页面站点演示</span>
+      <nav aria-label="页脚导航">
+        <a href="../index.html">首页</a>
+        <a href="../modules">模块</a>
+        <a href="../about.html">关于</a>
+      </nav>
+    </footer>
+  </main>
+
+  <script src="../static/data.js"></script>
+  <script src="../assets/site.js"></script>
+</body>
+</html>
