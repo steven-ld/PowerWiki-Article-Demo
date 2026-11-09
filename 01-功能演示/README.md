@@ -3,7 +3,7 @@ title: PowerWiki 功能演示
 description: PowerWiki 核心功能的详细演示和使用示例
 author: PowerWiki Team
 date: 2026-02-07
-updated: 2026-10-10
+updated: 2026-11-09
 tags: [功能演示, 示例]
 ---
 

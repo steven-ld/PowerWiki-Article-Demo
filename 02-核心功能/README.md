@@ -3,7 +3,7 @@ title: PowerWiki 核心功能
 description: PowerWiki 核心功能一览
 author: PowerWiki Team
 date: 2026-02-07
-updated: 2026-10-10
+updated: 2026-11-09
 tags: [核心功能, 功能介绍]
 ---
 

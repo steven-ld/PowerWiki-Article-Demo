@@ -3,7 +3,7 @@ title: 关于 PowerWiki
 description: PowerWiki 项目介绍和相关信息
 author: PowerWiki Team
 date: 2026-02-07
-updated: 2026-10-10
+updated: 2026-11-09
 tags: [关于, PowerWiki]
 ---
 
