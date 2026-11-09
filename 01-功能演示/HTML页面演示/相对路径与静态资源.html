@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>相对路径与静态资源</title>
+  <meta name="description" content="HTML 文章里的图片、文章链接和 static 资源如何被改写为 Wiki 地址。">
+</head>
+<body>
+  <h1>相对路径与静态资源</h1>
+
+  <p>HTML 页面里通常写的是相对地址。PowerWiki 在服务端解析它们，所以不需要为 Wiki 额外改写源文件。</p>
+
+  <h2 id="rules">改写规则</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>页面里写的</th>
+        <th>文章里变成</th>
+        <th>类型</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>../../images/home.jpg</code></td>
+        <td><code>/api/image/images/home.jpg</code></td>
+        <td>图片</td>
+      </tr>
+      <tr>
+        <td><code>基础示例.html</code></td>
+        <td><code>/post/01-功能演示/HTML页面演示/基础示例.html</code></td>
+        <td>HTML 文章</td>
+      </tr>
+      <tr>
+        <td><code>../代码高亮演示.md</code></td>
+        <td><code>/post/01-功能演示/代码高亮演示.md</code></td>
+        <td>Markdown 文章</td>
+      </tr>
+      <tr>
+        <td><code>static/demo.txt</code></td>
+        <td><code>/01-功能演示/HTML页面演示/static/demo.txt</code></td>
+        <td>静态文件</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 id="image">相对路径图片</h2>
+  <p>图片按页面所在目录解析，越出仓库的路径会被拒绝：</p>
+  <img src="../../images/home.jpg" alt="PowerWiki 首页" width="720">
+
+  <h2 id="static">同级 static 目录</h2>
+  <p>页面同级的 <code>static/</code> 用来放资源。相对引用会被改写到该目录：</p>
+  <img src="static/html-demo-badge.svg" alt="static 同级资源演示" width="440">
+
+  <p>非图片资源也可以直接链接：</p>
+  <ul>
+    <li><a href="static/demo.txt">相对地址：static/demo.txt</a></li>
+    <li><a href="/static/demo.txt">根绝对地址：/static/demo.txt（按页面同级 static 命中）</a></li>
+    <li><a href="基础示例.html">回到基础示例</a></li>
+  </ul>
+
+  <h2 id="absolute">根绝对地址</h2>
+  <p><code>/static/...</code>、<code>/api/image/...</code> 这类以 <code>/</code> 开头的地址本来就是站点地址，会被原样保留。它们在命中同级 <code>static/</code> 时，依靠文章页面提供的 <code>Referer</code> 映射回仓库目录。</p>
+
+  <h2 id="external">外部链接</h2>
+  <p>带协议的地址不做改写：</p>
+  <ul>
+    <li><a href="https://github.com/steven-ld/PowerWiki" target="_blank">PowerWiki 仓库</a></li>
+    <li><a href="mailto:hello@example.com">邮件链接</a></li>
+  </ul>
+
+  <p><small>提示：<code>target="_blank"</code> 的链接会自动补上 <code>rel="noopener noreferrer"</code>。</small></p>
+</body>
+</html>

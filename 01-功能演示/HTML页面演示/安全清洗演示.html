@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>安全清洗演示</title>
+  <meta name="description" content="展示 PowerWiki 如何清洗 HTML 正文中的脚本、事件处理器与危险链接。">
+  <style>body { background: #000; color: #fff; }</style>
+</head>
+<body>
+  <h1>安全清洗演示</h1>
+
+  <p>这个页面故意放了脚本、事件处理器和危险链接。渲染视图里它们全部被移除，写作 <code>html.sanitize: true</code> 的默认效果；切换到「原始」视图仍能看到源文件。</p>
+
+  <script>window.__HTML_DEMO_PWNED__ = true;</script>
+
+  <h2 id="items">源文件里有什么</h2>
+  <ul>
+    <li><code>&lt;script&gt;</code> 脚本块</li>
+    <li><code>onclick</code>、<code>onerror</code> 内联事件处理器</li>
+    <li><code>style</code> 标签与 <code>style</code> 属性</li>
+    <li><code>javascript:</code> 链接</li>
+    <li><code>iframe</code> 与表单控件</li>
+    <li>非位图的 <code>data:</code> 图片</li>
+  </ul>
+
+  <h2 id="demo">渲染视图里还剩什么</h2>
+
+  <p>下面的按钮和区块在源文件里带有事件处理器，渲染后只剩普通文字：</p>
+
+  <button onclick="window.__HTML_DEMO_PWNED__ = true;">带 onclick 的按钮</button>
+
+  <div onclick="window.__HTML_DEMO_PWNED__ = true;" style="border: 2px solid red; padding: 8px;">
+    带 onclick 和 style 的区块：属性被移除，文字保留。
+  </div>
+
+  <p>图片的 <code>onerror</code> 被移除，图片本身照常显示：</p>
+  <img src="../../images/dark-mode.jpg" alt="暗夜模式截图" onerror="window.__HTML_DEMO_PWNED__ = true;" width="720">
+
+  <p>下面这个链接的源文件地址是 <code>javascript:</code>，渲染后被移除，只剩文字：</p>
+  <p><a href="javascript:window.__HTML_DEMO_PWNED__=true;">一段不能点击的危险链接</a></p>
+
+  <p>非位图的 <code>data:</code> 图片会被丢弃：</p>
+  <img src="data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==" alt="data URL 图片">
+
+  <p>iframe、表单这些整块标签不会进入正文。你可以点击工具栏的「原始」查看它们原本的样子。</p>
+
+  <iframe src="https://example.com" title="不会被渲染"></iframe>
+
+  <form action="/api/home/view" method="post">
+    <label>表单控件 <input type="text" name="demo"></label>
+    <button type="submit">提交</button>
+  </form>
+
+  <h2 id="trusted">可信模式</h2>
+  <p>只有在内容完全可控时，才应该关闭清洗：</p>
+  <pre><code>{
+  "html": {
+    "sanitize": false
+  }
+}</code></pre>
+  <p>旧的 <code>"sandbox": false</code> 仍然兼容，等价于上述配置。关闭后脚本和样式会原样进入文章，请只对自己的仓库使用。</p>
+</body>
+</html>
