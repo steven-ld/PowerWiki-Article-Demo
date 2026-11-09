@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex">
+  <title>页面走丢了 · 自定义 404</title>
+  <meta name="description" content="PowerWiki 自定义 404 页面示例。">
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+      background: linear-gradient(135deg, #f4f7ff, #e8f5f0);
+      color: #1f2329;
+    }
+    main { max-width: 560px; padding: 40px 28px; text-align: center; }
+    .code {
+      font-size: 88px;
+      font-weight: 800;
+      letter-spacing: 6px;
+      background: linear-gradient(120deg, #3370ff, #00b89c);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    h1 { margin: 8px 0 12px; font-size: 24px; }
+    p { margin: 0 0 24px; line-height: 1.7; color: #646a73; }
+    a {
+      display: inline-block;
+      padding: 10px 22px;
+      border-radius: 999px;
+      background: #3370ff;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    a:hover { background: #245bdb; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="code">404</div>
+    <h1>这个页面不存在</h1>
+    <p>链接可能已经失效，或者文件被移动、重命名了。可以回到首页，从左侧目录重新找一找。</p>
+    <a href="/">返回首页</a>
+    <p><small>把本文件复制到仓库根目录并命名为 <code>404.html</code>，再把 <code>pages.notFound</code> 指向它，即可替换内置 404 页面。</small></p>
+  </main>
+</body>
+</html>

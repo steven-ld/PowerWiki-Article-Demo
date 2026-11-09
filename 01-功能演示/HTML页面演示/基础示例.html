@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>HTML 基础示例</title>
+  <meta name="description" content="PowerWiki 把仓库里的 HTML 文件作为文章渲染：只取正文，共用侧边栏、目录、分享与阅读数。">
+  <meta name="keywords" content="PowerWiki, HTML, 文章, 目录">
+</head>
+<body>
+  <h1>HTML 基础示例</h1>
+
+  <p>这个文件直接写在 Git 仓库里，后缀是 <code>.html</code>。PowerWiki 会像处理 Markdown 一样把它收录为文章：左侧导航、右侧目录、顶部工具栏、阅读数和分享链接都照常工作。</p>
+
+  <blockquote>
+    <p>页面里的 <code>&lt;title&gt;</code> 和 <code>&lt;meta name="description"&gt;</code> 会成为文章的标题与描述。</p>
+  </blockquote>
+
+  <h2 id="how-it-works">它是怎么被处理的</h2>
+  <ol>
+    <li>扫描仓库时，<code>.html</code> 和 <code>.htm</code> 与 <code>.md</code> 一起进入文章列表。</li>
+    <li>渲染时只取 <code>&lt;body&gt;</code> 里的正文，忽略页面自带的 <code>&lt;head&gt;</code> 和外壳。</li>
+    <li>正文默认按白名单清洗，脚本、事件处理器和 <code>style</code> 属性不会进入文章。</li>
+    <li>访问 <code>/01-功能演示/HTML页面演示/基础示例</code> 这类地址会 301 跳到统一的文章地址。</li>
+  </ol>
+
+  <h2 id="headings">多级标题会自动生成目录</h2>
+  <p>右侧目录读取正文中的 <code>h2</code> / <code>h3</code> 标题。点击下面的小节标题可以体验锚点跳转。</p>
+
+  <h3 id="table">表格</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>访问地址</th>
+        <th>会发生什么</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>/post/01-功能演示/HTML页面演示/基础示例.html</code></td>
+        <td>直接渲染为文章</td>
+      </tr>
+      <tr>
+        <td><code>/01-功能演示/HTML页面演示/基础示例</code></td>
+        <td>301 跳到上面的文章地址</td>
+      </tr>
+      <tr>
+        <td><code>/01-功能演示/HTML页面演示/基础示例.html</code></td>
+        <td>同样 301 到统一地址</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 id="inline">行内元素</h3>
+  <ul>
+    <li><strong>加粗</strong>、<em>斜体</em>、<del>删除线</del>、<ins>下划线</ins></li>
+    <li><code>行内代码</code>、<kbd>Ctrl</kbd> + <kbd>C</kbd>、<mark>高亮</mark></li>
+    <li>上标 H<sub>2</sub>O、下标 x<sup>2</sup></li>
+  </ul>
+
+  <h3 id="image">图片</h3>
+  <p>相对路径的图片会被改写为 <code>/api/image/...</code>，不需要额外的 Markdown 语法：</p>
+  <img src="../../images/mermaid.jpg" alt="PowerWiki 中渲染的 Mermaid 时序图" width="720">
+
+  <h2 id="links">链接到其他文章</h2>
+  <p>正文里的相对链接会自动改写成 Wiki 地址：</p>
+  <ul>
+    <li><a href="相对路径与静态资源.html">同目录的 HTML 页面</a></li>
+    <li><a href="../代码高亮演示.md">上级目录的 Markdown 文章</a></li>
+    <li><a href="../../README.md">仓库首页</a></li>
+    <li><a href="https://github.com/steven-ld/PowerWiki" target="_blank">外部链接（自动补 rel="noopener noreferrer"）</a></li>
+    <li><a href="#table">页面内的锚点</a></li>
+  </ul>
+
+  <h2 id="raw">原始视图</h2>
+  <p>工具栏的「原始」视图显示的就是这个 HTML 文件本身；「渲染」视图显示清洗后的正文。两种视图可以随时切换。</p>
+
+  <details>
+    <summary>展开一个折叠块</summary>
+    <p><code>details</code> / <code>summary</code> 在白名单里，可以正常使用。</p>
+  </details>
+
+  <hr>
+
+  <p><small>提示：直接在浏览器打开这个文件也能看到完整页面，但独立页面里的脚本和样式不会带进 Wiki 文章。</small></p>
+</body>
+</html>

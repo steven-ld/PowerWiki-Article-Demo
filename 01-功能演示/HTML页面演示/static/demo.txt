@@ -1,0 +1,6 @@
+这是 HTML 页面同级 static/ 目录里的静态文件。
+
+页面里的相对地址 static/demo.txt 会被 PowerWiki 改写为：
+/01-功能演示/HTML页面演示/static/demo.txt
+
+根绝对地址 /static/demo.txt 会优先在引用页面的同级 static/ 目录中查找。
