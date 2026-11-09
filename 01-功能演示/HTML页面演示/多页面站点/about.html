@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>关于 · Aurora Studio</title>
+  <meta name="description" content="这个多页面站点如何在沙箱中运行：同源权限、存储、网络与导航边界，以及它的技术组成。">
+  <meta name="powerwiki-render" content="sandbox">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <header class="site-header">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      Aurora Studio
+    </a>
+    <nav class="site-nav" aria-label="站点导航">
+      <a href="index.html" data-nav="home">首页</a>
+      <a href="guide/" data-nav="guide">指南</a>
+      <a href="modules" data-nav="modules">模块</a>
+      <a href="about.html" data-nav="about">关于</a>
+    </nav>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">☾</button>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <p class="eyebrow">ABOUT · SANDBOX BOUNDARIES</p>
+      <h1>关于这个站点</h1>
+      <p>
+        它是一个普通的多文件网站：页面、CSS、JavaScript 和数据文件各司其职。
+        特殊之处在于它跑在 PowerWiki 的沙箱里 —— 页面可以交互，但拿不到 Wiki 的身份和数据。
+      </p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="index.html">回到首页 →</a>
+        <a class="button" href="guide/">阅读指南</a>
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="boundaries">
+      <h2 id="boundaries">三条边界</h2>
+      <p class="lead">沙箱不是禁用 JavaScript，而是去掉“和 Wiki 同源”这件事。</p>
+      <div class="grid">
+        <article class="card">
+          <span class="card-icon" aria-hidden="true">◎</span>
+          <h3>同源权限</h3>
+          <p>
+            iframe 不包含 <code>allow-same-origin</code>，页面运行在不透明源里，
+            读不到 Wiki 的 Cookie、localStorage、IndexedDB，也不能调用同源 API。
+          </p>
+        </article>
+        <article class="card">
+          <span class="card-icon" aria-hidden="true">~</span>
+          <h3>存储</h3>
+          <p>
+            本演示的主题切换用 <code>try / catch</code> 包住 Web Storage：
+            在沙箱里写入会被拒绝，页面继续工作，只是跳转后不再记住选择。
+          </p>
+        </article>
+        <article class="card">
+          <span class="card-icon" aria-hidden="true">↗</span>
+          <h3>导航</h3>
+          <p>
+            页面内部的相对跳转始终可用；要跳出沙箱或打开新窗口，
+            需要 <code>allow-popups</code> 等显式能力，并且顶层跳转要由用户点击触发。
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="attributes">
+      <h2 id="attributes">文章 iframe 的 sandbox 属性</h2>
+      <p class="lead">允许脚本、表单、弹窗、下载和用户触发的顶层导航，但不允许同源。</p>
+      <pre class="code">sandbox="allow-scripts allow-forms allow-popups allow-modals
+         allow-downloads allow-top-navigation-by-user-activation"</pre>
+      <div class="callout">
+        <strong>独立打开时：</strong>
+        <code>/full/&lt;仓库路径&gt;</code> 用响应头
+        <code>Content-Security-Policy: sandbox …</code> 施加同样的限制，
+        并附带 <code>nosniff</code>、<code>no-store</code> 和同站资源策略。
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="stack">
+      <h2 id="stack">技术组成</h2>
+      <p class="lead">没有构建步骤，全部是仓库里的静态文件。</p>
+      <div class="grid">
+        <article class="card">
+          <h3>页面</h3>
+          <p><code>index.html</code>、<code>guide/index.html</code>、<code>modules.html</code>、<code>about.html</code></p>
+        </article>
+        <article class="card">
+          <h3>共享资源</h3>
+          <p><code>assets/site.css</code> 负责样式与深浅色变量，<code>assets/site.js</code> 负责主题、导航高亮与数据渲染。</p>
+        </article>
+        <article class="card">
+          <h3>数据</h3>
+          <p><code>static/data.js</code> 提供站点页面与模块清单，首页和模块页都从这里读取。</p>
+        </article>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <span>© <span data-year>2026</span> Aurora Studio · 多页面站点演示</span>
+      <nav aria-label="页脚导航">
+        <a href="index.html">首页</a>
+        <a href="guide/">指南</a>
+        <a href="modules">模块</a>
+      </nav>
+    </footer>
+  </main>
+
+  <script src="static/data.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

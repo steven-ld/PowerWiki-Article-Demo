@@ -38,8 +38,11 @@ PowerWiki 不只读取 Markdown。仓库里的 `.html` / `.htm` 文件会和 `.m
 | 数据可视化看板 | [数据看板.html](/post/01-功能演示/HTML页面演示/数据看板.html) | Canvas 折线 / 柱状 / 环形图、悬停提示、每 3 秒实时刷新 |
 | WebGL 与富媒体 | [WebGL与富媒体.html](/post/01-功能演示/HTML页面演示/WebGL与富媒体.html) | 原生 WebGL 着色器立方体、粒子星群、CSS 3D、WebAudio 频谱、SVG 描边 |
 | 文档站风格 | [文档站.html](/post/01-功能演示/HTML页面演示/文档站.html) | 固定侧边栏、滚动目录、主题切换、搜索过滤、标签页、代码复制 |
+| 多页面站点 | [多页面站点](/post/01-功能演示/HTML页面演示/多页面站点/index.html) | 目录索引 `guide/`、无扩展名 `modules`、页面间相对跳转、共享 CSS/JS、`static/data.js` 数据模块 |
 
 > 沙箱内是不透明源，`localStorage` 等 Web Storage 会抛异常。上面这些页面只用内存状态，或对存储访问做了 `try / catch`。
+
+多页面站点演示把多个页面放在同一目录树里：`guide/` 由目录索引解析到 `guide/index.html`，`modules` 由无扩展名规则解析到 `modules.html`，页面之间只用相对路径互相跳转。独立入口是 [`/full/01-功能演示/HTML页面演示/多页面站点/`](/full/01-功能演示/HTML页面演示/多页面站点/)。`/full/` 只放行 HTML 与静态资源，JSON 等数据文件不会暴露，因此共享数据放在 `static/data.js`。
 
 ## 收录规则
 

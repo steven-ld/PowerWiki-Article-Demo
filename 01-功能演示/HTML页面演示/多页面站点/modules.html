@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>模块清单 · Aurora Studio</title>
+  <meta name="description" content="演示无扩展名路径 modules 解析到 modules.html，以及从 static/data.js 读取数据并做客户端搜索。">
+  <meta name="powerwiki-render" content="sandbox">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <header class="site-header">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      Aurora Studio
+    </a>
+    <nav class="site-nav" aria-label="站点导航">
+      <a href="index.html" data-nav="home">首页</a>
+      <a href="guide/" data-nav="guide">指南</a>
+      <a href="modules" data-nav="modules">模块</a>
+      <a href="about.html" data-nav="about">关于</a>
+    </nav>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">☾</button>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <p class="eyebrow">MODULES · EXTENSIONLESS ROUTE</p>
+      <h1>模块清单</h1>
+      <p>
+        这个页面的地址是 <code>modules</code>，没有 <code>.html</code> 后缀。
+        <code>/full/</code> 会先按原路径查找，找不到时再依次尝试 <code>modules.html</code>
+        和 <code>modules/index.html</code>，所以无扩展名链接也能落到真实页面。
+      </p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="guide/">回到搭建指南</a>
+        <a class="button" href="about.html">沙箱边界</a>
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="list">
+      <h2 id="list">能力模块</h2>
+      <p class="lead">下面这些卡片由 <code>static/data.js</code> 提供数据，输入关键字可以即时过滤。</p>
+
+      <div class="search">
+        <input type="search" data-module-search aria-label="搜索模块" placeholder="搜索模块名称或说明…" autocomplete="off">
+      </div>
+
+      <div class="module-list" data-modules></div>
+      <p class="empty" data-module-empty hidden>没有匹配的模块，换个关键字试试。</p>
+
+      <div class="callout">
+        <strong>数据从哪来：</strong>
+        页面加载 <code>static/data.js</code> 后，共享脚本读取 <code>window.SITE_DATA.modules</code>
+        并创建卡片；搜索只是在前端过滤已经渲染好的节点，不发起额外请求。
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <span>© <span data-year>2026</span> Aurora Studio · 多页面站点演示</span>
+      <nav aria-label="页脚导航">
+        <a href="index.html">首页</a>
+        <a href="guide/">指南</a>
+        <a href="about.html">关于</a>
+      </nav>
+    </footer>
+  </main>
+
+  <script src="static/data.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

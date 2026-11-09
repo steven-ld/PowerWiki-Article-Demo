@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aurora Studio · 多页面站点演示</title>
+  <meta name="description" content="用一个多文件小站点演示 PowerWiki 的 /full/ 目录索引、页面间相对跳转、共享 CSS/JS 与 static/ 数据模块。">
+  <meta name="powerwiki-render" content="sandbox">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <header class="site-header">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      Aurora Studio
+    </a>
+    <nav class="site-nav" aria-label="站点导航">
+      <a href="index.html" data-nav="home">首页</a>
+      <a href="guide/" data-nav="guide">指南</a>
+      <a href="modules" data-nav="modules">模块</a>
+      <a href="about.html" data-nav="about">关于</a>
+    </nav>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">☾</button>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <p class="eyebrow">MULTI-PAGE SITE · SANDBOXED</p>
+      <h1>一个真正的多文件站点，也能安全运行</h1>
+      <p>
+        这不是一张孤立的 HTML 长页，而是由多个页面、共享样式脚本和 <code>static/</code>
+        数据模块组成的小站点。每个页面都在头部声明
+        <code>&lt;meta name="powerwiki-render" content="sandbox"&gt;</code>，
+        由 PowerWiki 放进没有同源权限的 iframe 中渲染。
+      </p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="guide/">阅读搭建指南 →</a>
+        <a class="button" href="modules">浏览模块</a>
+        <a class="button" href="about.html">沙箱边界</a>
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="capabilities">
+      <h2 id="capabilities">这个演示实际用到了什么</h2>
+      <p class="lead">每一项都对应一个刚刚补齐的路由能力，点开任意页面都能验证。</p>
+      <div class="grid">
+        <article class="card">
+          <span class="card-icon" aria-hidden="true">/</span>
+          <h3>目录索引</h3>
+          <p>链接写 <code>guide/</code>，<code>/full/</code> 自动返回 <code>guide/index.html</code>，不必在地址里写死文件名。</p>
+        </article>
+        <article class="card">
+          <span class="card-icon" aria-hidden="true">↗</span>
+          <h3>相对跳转</h3>
+          <p>页面之间只用相对路径互相链接，在文章 iframe 和独立打开的 <code>/full/</code> 标签页里都成立。</p>
+        </article>
+        <article class="card">
+          <span class="card-icon" aria-hidden="true">#</span>
+          <h3>共享资源</h3>
+          <p>所有页面引用同一份 <code>assets/site.css</code> 与 <code>assets/site.js</code>，样式和交互只维护一处。</p>
+        </article>
+        <article class="card">
+          <span class="card-icon" aria-hidden="true">{}</span>
+          <h3>数据模块</h3>
+          <p>页面脚本读取 <code>static/data.js</code>，渲染下方的页面清单与模块列表。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="structure">
+      <h2 id="structure">目录结构</h2>
+      <p class="lead">链接目标、共享资源、数据文件和页面本身，全部放在同一个目录树里。</p>
+      <pre class="tree"><span class="dir">多页面站点/</span>
+├── index.html          <span class="note">← 当前页面</span>
+├── about.html
+├── modules.html        <span class="note">← 链接写的是 modules（无扩展名）</span>
+├── guide/
+│   └── index.html      <span class="note">← 链接写的是 guide/（目录索引）</span>
+├── assets/
+│   ├── site.css
+│   └── site.js
+└── static/
+    └── data.js         <span class="note">← 共享数据模块</span></pre>
+    </section>
+
+    <section class="block" aria-labelledby="pages">
+      <h2 id="pages">站点页面</h2>
+      <p class="lead">下面这份清单来自 <code>static/data.js</code>，由共享脚本渲染。</p>
+      <ul class="module-list list-reset" data-pages></ul>
+    </section>
+
+    <section class="block" aria-labelledby="data-note">
+      <h2 id="data-note">为什么不是 static/data.json？</h2>
+      <p class="lead">
+        <code>/full/</code> 只放行 HTML 与精选静态资源（图片、CSS/JS、字体、音视频、WASM）。
+        JSON、YAML、TXT 这类数据文件不在允许列表里，避免把仓库里的配置或私密内容变成可直接下载的文件。
+        需要共享数据时，像本页一样使用 JS 数据模块。
+      </p>
+      <div class="callout">
+        <strong>安全默认值：</strong>
+        <code>/full/</code> 会拒绝路径穿越、隐藏路径段、指到仓库外的符号链接，以及超过 50&nbsp;MB 的文件；
+        数据类文件只在显式的 <code>static/</code> 目录里提供。
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <span>© <span data-year>2026</span> Aurora Studio · 多页面站点演示</span>
+      <nav aria-label="页脚导航">
+        <a href="guide/">指南</a>
+        <a href="modules">模块</a>
+        <a href="about.html">关于</a>
+      </nav>
+    </footer>
+  </main>
+
+  <script src="static/data.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>
