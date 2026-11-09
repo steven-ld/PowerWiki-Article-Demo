@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>数据可视化看板 · Pulse</title>
+  <meta name="description" content="在 PowerWiki 沙箱中运行的实时数据看板：Canvas 折线图、柱状图、环形图、迷你趋势图与实时刷新。">
+  <meta name="powerwiki-render" content="sandbox">
+  <style>
+    :root {
+      --bg: #080c18;
+      --panel: rgba(17, 24, 43, 0.82);
+      --panel-solid: #111827;
+      --line: rgba(148, 163, 184, 0.12);
+      --text: #e5ecf8;
+      --muted: #8b9bb4;
+      --cyan: #22d3ee;
+      --violet: #a78bfa;
+      --green: #34d399;
+      --amber: #fbbf24;
+      --pink: #f472b6;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh; background:
+        radial-gradient(1000px 520px at 85% -10%, rgba(34, 211, 238, 0.13), transparent 60%),
+        radial-gradient(900px 500px at 5% 0%, rgba(167, 139, 250, 0.12), transparent 55%),
+        var(--bg);
+      color: var(--text); line-height: 1.5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      padding: 18px clamp(14px, 3vw, 32px) 32px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .topbar {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 14px; padding: 6px 4px 20px;
+    }
+    .title-group { display: flex; align-items: center; gap: 13px; }
+    .logo {
+      width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;
+      background: linear-gradient(135deg, rgba(34, 211, 238, .9), rgba(167, 139, 250, .9));
+      box-shadow: 0 10px 30px rgba(34, 211, 238, .25);
+    }
+    .logo svg { width: 21px; height: 21px; }
+    h1 { font-size: 18px; letter-spacing: -.2px; }
+    .subtitle { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(52, 211, 153, .45); animation: ping 2s infinite; }
+    @keyframes ping {
+      0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, .45); }
+      70% { box-shadow: 0 0 0 9px rgba(52, 211, 153, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+    }
+    .toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .segmented {
+      display: flex; padding: 3px; gap: 2px; border-radius: 10px;
+      background: rgba(148, 163, 184, .08); border: 1px solid var(--line);
+    }
+    .segmented button {
+      border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 12.5px;
+      padding: 6px 13px; border-radius: 8px; cursor: pointer; transition: background .2s, color .2s;
+    }
+    .segmented button.active { background: rgba(34, 211, 238, .16); color: var(--cyan); }
+    .icon-btn {
+      display: inline-flex; align-items: center; gap: 7px; padding: 8px 13px;
+      border-radius: 10px; border: 1px solid var(--line); background: rgba(148, 163, 184, .06);
+      color: var(--text); font: inherit; font-size: 12.5px; cursor: pointer; transition: border-color .2s, background .2s;
+    }
+    .icon-btn:hover { border-color: rgba(34, 211, 238, .4); background: rgba(34, 211, 238, .08); }
+    .icon-btn svg { width: 14px; height: 14px; }
+    .clock { font-variant-numeric: tabular-nums; font-size: 12.5px; color: var(--muted); }
+
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px; }
+    .kpi {
+      position: relative; overflow: hidden; padding: 18px 18px 14px; border-radius: var(--radius);
+      background: var(--panel); border: 1px solid var(--line);
+      backdrop-filter: blur(12px); transition: transform .25s, border-color .25s;
+    }
+    .kpi:hover { transform: translateY(-3px); border-color: rgba(34, 211, 238, .28); }
+    .kpi-top { display: flex; justify-content: space-between; align-items: center; }
+    .kpi-label { font-size: 12.5px; color: var(--muted); }
+    .delta { font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 999px; }
+    .delta.up { color: var(--green); background: rgba(52, 211, 153, .12); }
+    .delta.down { color: var(--pink); background: rgba(244, 114, 182, .12); }
+    .kpi-value { margin-top: 10px; font-size: clamp(24px, 2.6vw, 31px); font-weight: 750; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+    .kpi canvas { display: block; width: 100%; height: 42px; margin-top: 10px; }
+
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .panel {
+      background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 18px; backdrop-filter: blur(12px); min-width: 0;
+    }
+    .panel.wide { grid-column: span 2; }
+    .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+    .panel-head h2 { font-size: 14.5px; font-weight: 650; }
+    .panel-head p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .legend { display: flex; gap: 14px; font-size: 11.5px; color: var(--muted); flex-wrap: wrap; margin-top: 8px; }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .legend i { width: 8px; height: 8px; border-radius: 3px; }
+    .chart-wrap { position: relative; }
+    .chart-wrap canvas { display: block; width: 100%; height: 280px; }
+    .chart-wrap.compact canvas { height: 200px; }
+    .tooltip {
+      position: absolute; pointer-events: none; opacity: 0; transform: translate(-50%, -110%);
+      background: #0b1222; border: 1px solid rgba(34, 211, 238, .35); border-radius: 10px;
+      padding: 9px 12px; font-size: 12px; white-space: nowrap; transition: opacity .12s; z-index: 5;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, .45);
+    }
+    .tooltip b { color: var(--cyan); font-variant-numeric: tabular-nums; }
+    .tooltip span { color: var(--muted); display: block; font-size: 11px; }
+
+    .donut-wrap { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; justify-content: center; }
+    .donut-wrap canvas { width: 170px; height: 170px; flex: none; }
+    .donut-legend { display: grid; gap: 11px; font-size: 12.5px; min-width: 130px; flex: 1; }
+    .donut-legend div { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); }
+    .donut-legend span { display: inline-flex; align-items: center; gap: 8px; }
+    .donut-legend i { width: 9px; height: 9px; border-radius: 50%; }
+    .donut-legend b { color: var(--text); font-variant-numeric: tabular-nums; }
+
+    .feed { display: grid; gap: 4px; }
+    .feed-item {
+      display: flex; gap: 11px; align-items: flex-start; padding: 10px 8px; border-radius: 10px;
+      font-size: 12.5px; color: var(--muted); transition: background .2s; animation: slideIn .4s ease both;
+    }
+    .feed-item:hover { background: rgba(148, 163, 184, .06); }
+    .feed-item time { font-size: 11px; color: #5d6d86; flex: none; padding-top: 1px; font-variant-numeric: tabular-nums; }
+    .feed-item b { color: var(--text); font-weight: 600; }
+    .feed-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 6px; flex: none; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
+    .bar-list { display: grid; gap: 12px; margin-top: 4px; }
+    .bar-row { font-size: 12px; color: var(--muted); }
+    .bar-row .bar-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .bar-row b { color: var(--text); font-variant-numeric: tabular-nums; }
+    .bar-track { height: 8px; border-radius: 999px; background: rgba(148, 163, 184, .1); overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; width: 0; transition: width 1s cubic-bezier(.22, 1, .36, 1); }
+
+    .toast {
+      position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 18px);
+      background: #0b1222; border: 1px solid rgba(34, 211, 238, .3); color: var(--text);
+      padding: 11px 18px; border-radius: 11px; font-size: 12.5px; z-index: 30;
+      opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 1080px) {
+      .kpis { grid-template-columns: repeat(2, 1fr); }
+      .grid { grid-template-columns: 1fr 1fr; }
+      .panel.wide { grid-column: span 2; }
+    }
+    @media (max-width: 680px) {
+      .kpis, .grid { grid-template-columns: 1fr; }
+      .panel.wide { grid-column: auto; }
+      .chart-wrap canvas { height: 220px; }
+      .toolbar { width: 100%; justify-content: space-between; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001s !important; transition-duration: .001s !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="title-group">
+      <span class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#06121f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 17l5-6 4 3 4-7 5 5"/>
+        </svg>
+      </span>
+      <div>
+        <h1>Pulse 运营看板</h1>
+        <div class="subtitle"><span class="live-dot"></span>数据每 3 秒自动刷新 · <span class="clock" id="clock">--:--:--</span></div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="segmented" id="range" role="group" aria-label="时间范围">
+        <button class="active" data-range="7">7 天</button>
+        <button data-range="30">30 天</button>
+      </div>
+      <button class="icon-btn" id="refresh" title="立即刷新">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 11a8 8 0 10-2.3 5.7"/><path d="M20 5v6h-6"/></svg>
+        刷新
+      </button>
+    </div>
+  </header>
+
+  <section class="kpis">
+    <article class="kpi">
+      <div class="kpi-top"><span class="kpi-label">总营收</span><span class="delta up">+18.2%</span></div>
+      <div class="kpi-value" data-kpi="revenue">¥0</div>
+      <canvas id="spark-revenue" aria-label="营收趋势"></canvas>
+    </article>
+    <article class="kpi">
+      <div class="kpi-top"><span class="kpi-label">活跃用户</span><span class="delta up">+6.4%</span></div>
+      <div class="kpi-value" data-kpi="users">0</div>
+      <canvas id="spark-users" aria-label="用户趋势"></canvas>
+    </article>
+    <article class="kpi">
+      <div class="kpi-top"><span class="kpi-label">转化率</span><span class="delta down">-0.8%</span></div>
+      <div class="kpi-value" data-kpi="conversion">0%</div>
+      <canvas id="spark-conversion" aria-label="转化率趋势"></canvas>
+    </article>
+    <article class="kpi">
+      <div class="kpi-top"><span class="kpi-label">平均延迟</span><span class="delta up">-12.5%</span></div>
+      <div class="kpi-value" data-kpi="latency">0 ms</div>
+      <canvas id="spark-latency" aria-label="延迟趋势"></canvas>
+    </article>
+  </section>
+
+  <section class="grid">
+    <article class="panel wide">
+      <div class="panel-head">
+        <div>
+          <h2>访问与转化趋势</h2>
+          <p>每日会话量与付费转化（Canvas 绘制）</p>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--cyan)"></i>会话</span>
+          <span><i style="background:var(--violet)"></i>转化</span>
+        </div>
+      </div>
+      <div class="chart-wrap" id="trend-wrap">
+        <canvas id="trend" aria-label="访问与转化趋势图"></canvas>
+        <div class="tooltip" id="tooltip"></div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>设备分布</h2>
+          <p>最近 7 天会话来源</p>
+        </div>
+      </div>
+      <div class="donut-wrap">
+        <canvas id="donut" aria-label="设备分布环形图"></canvas>
+        <div class="donut-legend" id="donut-legend"></div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>渠道表现</h2>
+          <p>各渠道贡献占比</p>
+        </div>
+      </div>
+      <div class="bar-list" id="bars"></div>
+    </article>
+
+    <article class="panel wide">
+      <div class="panel-head">
+        <div>
+          <h2>实时动态</h2>
+          <p>来自边缘节点的最新事件</p>
+        </div>
+        <span class="delta up" id="event-count">0 条/分</span>
+      </div>
+      <div class="feed" id="feed"></div>
+    </article>
+  </section>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    (function () {
+      var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var state = { range: 7, series: [] };
+
+      function rand(min, max) { return min + Math.random() * (max - min); }
+      function clamp(value, min, max) { return Math.min(max, Math.max(min, value)); }
+
+      // 生成一条平滑但有波动的序列
+      function makeSeries(length, base, spread, drift) {
+        var values = [], value = base;
+        for (var i = 0; i < length; i++) {
+          value = clamp(value + rand(-spread, spread) + (drift || 0), base * 0.35, base * 1.9);
+          values.push(value);
+        }
+        return values;
+      }
+
+      function buildData(range) {
+        var length = range;
+        var sessions = makeSeries(length, 1400, 260, 18);
+        var converted = sessions.map(function (value) { return value * rand(0.024, 0.041); });
+        return { sessions: sessions, converted: converted };
+      }
+      state.series = buildData(state.range);
+
+      // Canvas 高分屏适配
+      function fitCanvas(canvas) {
+        var rect = canvas.getBoundingClientRect();
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var width = Math.max(1, Math.round(rect.width * dpr));
+        var height = Math.max(1, Math.round(rect.height * dpr));
+        if (canvas.width !== width || canvas.height !== height) {
+          canvas.width = width;
+          canvas.height = height;
+        }
+        var ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        return { ctx: ctx, width: rect.width, height: rect.height };
+      }
+
+      function roundRect(ctx, x, y, w, h, r) {
+        r = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+      }
+
+      // ---------- 迷你趋势图 ----------
+      function drawSparkline(canvas, values, color) {
+        if (!canvas || !canvas.getContext) return;
+        var fitted = fitCanvas(canvas);
+        var ctx = fitted.ctx, width = fitted.width, height = fitted.height;
+        ctx.clearRect(0, 0, width, height);
+        if (!values.length) return;
+        var min = Math.min.apply(null, values), max = Math.max.apply(null, values);
+        var span = max - min || 1;
+        var stepX = width / Math.max(1, values.length - 1);
+        function point(i) {
+          return [i * stepX, height - 4 - ((values[i] - min) / span) * (height - 10)];
+        }
+        var gradient = ctx.createLinearGradient(0, 0, 0, height);
+        gradient.addColorStop(0, color + '55');
+        gradient.addColorStop(1, color + '00');
+        ctx.beginPath();
+        ctx.moveTo(0, height);
+        values.forEach(function (_, index) {
+          var p = point(index);
+          ctx.lineTo(p[0], p[1]);
+        });
+        ctx.lineTo(width, height);
+        ctx.closePath();
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        ctx.beginPath();
+        values.forEach(function (_, index) {
+          var p = point(index);
+          if (index === 0) ctx.moveTo(p[0], p[1]);
+          else ctx.lineTo(p[0], p[1]);
+        });
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.8;
+        ctx.lineJoin = 'round';
+        ctx.stroke();
+      }
+
+      // ---------- 主趋势图 ----------
+      var trendCanvas = document.getElementById('trend');
+      var trendWrap = document.getElementById('trend-wrap');
+      var tooltip = document.getElementById('tooltip');
+      var hoverIndex = -1;
+      var trendProgress = 1;
+      var trendRaf = 0;
+
+      function drawTrend(progress) {
+        if (!trendCanvas || !trendCanvas.getContext) return;
+        var fitted = fitCanvas(trendCanvas);
+        var ctx = fitted.ctx, width = fitted.width, height = fitted.height;
+        var pad = { top: 10, right: 42, bottom: 26, left: 46 };
+        var plotW = Math.max(1, width - pad.left - pad.right);
+        var plotH = Math.max(1, height - pad.top - pad.bottom);
+        var data = state.series;
+        var values = data.sessions;
+        var converted = data.converted;
+        ctx.clearRect(0, 0, width, height);
+
+        var max = Math.max.apply(null, values) * 1.12;
+        var maxConverted = Math.max.apply(null, converted) * 1.35;
+        var min = 0;
+
+        // 网格与 Y 轴
+        ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        for (var g = 0; g <= 4; g++) {
+          var y = pad.top + (plotH / 4) * g;
+          ctx.strokeStyle = 'rgba(148,163,184,0.10)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(pad.left, y + .5);
+          ctx.lineTo(width - pad.right, y + .5);
+          ctx.stroke();
+          var label = Math.round(max - (max / 4) * g);
+          ctx.fillStyle = '#67788f';
+          ctx.fillText(label >= 1000 ? (label / 1000).toFixed(1) + 'k' : label, pad.left - 10, y);
+        }
+
+        function xAt(index) { return pad.left + (plotW / Math.max(1, values.length - 1)) * index; }
+        function yAt(value) { return pad.top + plotH - ((value - min) / (max - min)) * plotH; }
+        function yAtConverted(value) { return pad.top + plotH - (value / maxConverted) * plotH; }
+
+        // 面积 + 折线（按 progress 截断，实现绘制动画）
+        var visible = Math.max(2, Math.ceil(values.length * progress));
+        function paintLine(series, color, fill, yFn) {
+          var gradient = ctx.createLinearGradient(0, pad.top, 0, pad.top + plotH);
+          gradient.addColorStop(0, color + (fill ? '4d' : '00'));
+          gradient.addColorStop(1, color + '00');
+          ctx.beginPath();
+          for (var i = 0; i < visible; i++) {
+            var x = xAt(i), y = yFn(series[i]);
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          if (fill) {
+            var lastX = xAt(visible - 1);
+            ctx.lineTo(lastX, pad.top + plotH);
+            ctx.lineTo(pad.left, pad.top + plotH);
+            ctx.closePath();
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            ctx.beginPath();
+            for (var j = 0; j < visible; j++) {
+              var px = xAt(j), py = yFn(series[j]);
+              if (j === 0) ctx.moveTo(px, py);
+              else ctx.lineTo(px, py);
+            }
+          }
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 2.2;
+          ctx.lineJoin = 'round';
+          ctx.lineCap = 'round';
+          ctx.stroke();
+        }
+        paintLine(values, '#22d3ee', true, yAt);
+        paintLine(converted, '#a78bfa', false, yAtConverted);
+
+        // 右侧坐标轴：转化数
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#8b7dc8';
+        for (var c = 0; c <= 2; c++) {
+          var cy = pad.top + (plotH / 2) * c;
+          ctx.fillText(Math.round(maxConverted - (maxConverted / 2) * c), width - pad.right + 8, cy);
+        }
+
+        // 悬停十字线
+        if (hoverIndex >= 0 && hoverIndex < values.length) {
+          var hx = xAt(hoverIndex);
+          ctx.strokeStyle = 'rgba(34,211,238,0.35)';
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(hx, pad.top);
+          ctx.lineTo(hx, pad.top + plotH);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          [values, converted].forEach(function (series, index) {
+            ctx.beginPath();
+            ctx.arc(hx, index === 0 ? yAt(series[hoverIndex]) : yAtConverted(series[hoverIndex]), 3.5, 0, Math.PI * 2);
+            ctx.fillStyle = index === 0 ? '#22d3ee' : '#a78bfa';
+            ctx.fill();
+            ctx.strokeStyle = '#080c18';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          });
+        }
+
+        // X 轴标签
+        ctx.fillStyle = '#67788f';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        var labelCount = Math.min(7, values.length);
+        for (var k = 0; k < labelCount; k++) {
+          var index = Math.round((values.length - 1) * (k / (labelCount - 1)));
+          ctx.fillText('D' + (index + 1), xAt(index), pad.top + plotH + 9);
+        }
+      }
+
+      function animateTrend() {
+        cancelAnimationFrame(trendRaf);
+        if (reduceMotion) { drawTrend(1); return; }
+        var start = performance.now();
+        function frame(now) {
+          var ratio = Math.min(1, (now - start) / 650);
+          var eased = 1 - Math.pow(1 - ratio, 3);
+          drawTrend(0.08 + eased * 0.92);
+          if (ratio < 1) trendRaf = requestAnimationFrame(frame);
+        }
+        trendRaf = requestAnimationFrame(frame);
+      }
+
+      function moveTooltip() {
+        if (hoverIndex < 0 || !state.series.sessions.length) { tooltip.style.opacity = 0; return; }
+        var rect = trendCanvas.getBoundingClientRect();
+        var padLeft = 46, padRight = 42;
+        var plotW = rect.width - padLeft - padRight;
+        var x = padLeft + (plotW / Math.max(1, state.series.sessions.length - 1)) * hoverIndex;
+        tooltip.style.left = clamp(x, 70, rect.width - 70) + 'px';
+        tooltip.style.top = '38px';
+        tooltip.style.opacity = 1;
+        tooltip.innerHTML = '<b>' + Math.round(state.series.sessions[hoverIndex]).toLocaleString('zh-CN') + '</b> 会话' +
+          '<span>转化 ' + Math.round(state.series.converted[hoverIndex]).toLocaleString('zh-CN') + ' · D' + (hoverIndex + 1) + '</span>';
+      }
+
+      if (trendCanvas) {
+        trendCanvas.addEventListener('pointermove', function (event) {
+          var rect = trendCanvas.getBoundingClientRect();
+          var padLeft = 46, padRight = 42;
+          var plotW = rect.width - padLeft - padRight;
+          var ratio = clamp((event.clientX - rect.left - padLeft) / plotW, 0, 1);
+          hoverIndex = Math.round(ratio * (state.series.sessions.length - 1));
+          drawTrend(1);
+          moveTooltip();
+        });
+        trendCanvas.addEventListener('pointerleave', function () {
+          hoverIndex = -1;
+          tooltip.style.opacity = 0;
+          drawTrend(1);
+        });
+      }
+
+      // ---------- 环形图 ----------
+      function drawDonut(progress) {
+        var canvas = document.getElementById('donut');
+        if (!canvas || !canvas.getContext) return;
+        var fitted = fitCanvas(canvas);
+        var ctx = fitted.ctx, width = fitted.width, height = fitted.height;
+        ctx.clearRect(0, 0, width, height);
+        var cx = width / 2, cy = height / 2;
+        var radius = Math.min(width, height) / 2 - 10;
+        var inner = radius * 0.62;
+        var parts = [
+          { label: '桌面端', value: 46, color: '#22d3ee' },
+          { label: '移动端', value: 38, color: '#a78bfa' },
+          { label: '平板', value: 11, color: '#34d399' },
+          { label: '其他', value: 5, color: '#fbbf24' }
+        ];
+        var total = parts.reduce(function (sum, part) { return sum + part.value; }, 0);
+        var angle = -Math.PI / 2;
+        parts.forEach(function (part) {
+          var sweep = (part.value / total) * Math.PI * 2 * progress;
+          ctx.beginPath();
+          ctx.arc(cx, cy, radius, angle + 0.02, angle + sweep - 0.02);
+          ctx.arc(cx, cy, inner, angle + sweep - 0.02, angle + 0.02, true);
+          ctx.closePath();
+          ctx.fillStyle = part.color;
+          ctx.fill();
+          angle += sweep;
+        });
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#e5ecf8';
+        ctx.font = '700 24px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+        ctx.fillText('2.4M', cx, cy - 6);
+        ctx.fillStyle = '#8b9bb4';
+        ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+        ctx.fillText('总会话', cx, cy + 16);
+
+        var legend = document.getElementById('donut-legend');
+        legend.innerHTML = parts.map(function (part) {
+          return '<div><span><i style="background:' + part.color + '"></i>' + part.label + '</span><b>' + part.value + '%</b></div>';
+        }).join('');
+      }
+
+      function animateDonut() {
+        if (reduceMotion) { drawDonut(1); return; }
+        var start = performance.now();
+        function frame(now) {
+          var ratio = Math.min(1, (now - start) / 800);
+          drawDonut(1 - Math.pow(1 - ratio, 3));
+          if (ratio < 1) requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+      }
+
+      // ---------- 渠道条形 ----------
+      function renderBars() {
+        var channels = [
+          { name: '自然搜索', value: 38, color: '#22d3ee' },
+          { name: '社交媒体', value: 27, color: '#a78bfa' },
+          { name: '邮件营销', value: 19, color: '#34d399' },
+          { name: '直接访问', value: 11, color: '#fbbf24' },
+          { name: '合作推荐', value: 5, color: '#f472b6' }
+        ];
+        var container = document.getElementById('bars');
+        container.innerHTML = channels.map(function (channel) {
+          return '<div class="bar-row"><div class="bar-top"><span>' + channel.name + '</span><b>' + channel.value + '%</b></div>' +
+            '<div class="bar-track"><div class="bar-fill" style="background:' + channel.color + '" data-width="' + channel.value + '"></div></div></div>';
+        }).join('');
+        requestAnimationFrame(function () {
+          container.querySelectorAll('.bar-fill').forEach(function (bar, index) {
+            setTimeout(function () { bar.style.width = bar.getAttribute('data-width') + '%'; }, reduceMotion ? 0 : index * 70);
+          });
+        });
+      }
+
+      // ---------- KPI 数值 ----------
+      function animateValue(element, target, formatter, duration) {
+        var start = performance.now();
+        var total = reduceMotion ? 0 : (duration || 900);
+        function frame(now) {
+          var ratio = total === 0 ? 1 : Math.min(1, (now - start) / total);
+          var eased = 1 - Math.pow(1 - ratio, 3);
+          element.textContent = formatter(target * eased);
+          if (ratio < 1) requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+      }
+
+      function renderKpis(animate) {
+        var sessions = state.series.sessions;
+        var values = sessions.slice(-12);
+        var revenue = sessions.reduce(function (sum, value) { return sum + value * 6.4; }, 0);
+        var users = Math.round(sessions[sessions.length - 1] * 0.82);
+        var conversion = 3.4;
+        var latency = 142;
+
+        var targets = {
+          revenue: { target: revenue, format: function (value) { return '¥' + Math.round(value).toLocaleString('zh-CN'); } },
+          users: { target: users, format: function (value) { return Math.round(value).toLocaleString('zh-CN'); } },
+          conversion: { target: conversion, format: function (value) { return value.toFixed(1) + '%'; } },
+          latency: { target: latency, format: function (value) { return Math.round(value) + ' ms'; } }
+        };
+        Object.keys(targets).forEach(function (key) {
+          var element = document.querySelector('[data-kpi="' + key + '"]');
+          if (!element) return;
+          if (animate) animateValue(element, targets[key].target, targets[key].format);
+          else element.textContent = targets[key].format(targets[key].target);
+        });
+
+        drawSparkline(document.getElementById('spark-revenue'), values, '#22d3ee');
+        drawSparkline(document.getElementById('spark-users'), values.slice().reverse(), '#a78bfa');
+        drawSparkline(document.getElementById('spark-conversion'), values.map(function (value, index) { return value * (index % 2 ? 1.02 : 0.98); }), '#34d399');
+        drawSparkline(document.getElementById('spark-latency'), values.map(function (value) { return 160 - value / 22; }), '#fbbf24');
+      }
+
+      // ---------- 实时动态 ----------
+      var feedEvents = [
+        ['边缘节点扩容完成', '#34d399'],
+        ['新用户完成首次付费', '#22d3ee'],
+        ['API 成功率回升至 99.98%', '#a78bfa'],
+        ['内容分发命中率 98.4%', '#fbbf24'],
+        ['缓存预热任务结束', '#34d399'],
+        ['移动端会话增长 12%', '#f472b6'],
+        ['索引重建完成', '#22d3ee']
+      ];
+      var feed = document.getElementById('feed');
+      function currentTime() {
+        var date = new Date();
+        return String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0') + ':' + String(date.getSeconds()).padStart(2, '0');
+      }
+      function pushEvent(event) {
+        var item = document.createElement('div');
+        item.className = 'feed-item';
+        item.innerHTML = '<span class="feed-dot" style="background:' + event[1] + '"></span>' +
+          '<div style="flex:1"><b>' + event[0] + '</b></div><time>' + currentTime() + '</time>';
+        feed.prepend(item);
+        while (feed.children.length > 6) feed.lastElementChild.remove();
+      }
+      feedEvents.slice(0, 4).forEach(function (event, index) {
+        setTimeout(function () { pushEvent(event); }, reduceMotion ? 0 : index * 120);
+      });
+
+      // ---------- 刷新逻辑 ----------
+      var tick = 0;
+      function refresh(animate) {
+        var last = state.series.sessions.slice(-1)[0] || 1200;
+        state.series.sessions.push(clamp(last + rand(-220, 260), 600, 2600));
+        state.series.converted.push(last * rand(0.02, 0.04));
+        state.series.sessions.shift();
+        state.series.converted.shift();
+
+        renderKpis(animate);
+        if (animate) animateTrend(); else drawTrend(1);
+        animateDonut();
+        renderBars();
+        tick++;
+        document.getElementById('event-count').textContent = Math.round(rand(18, 34)) + ' 条/分';
+        if (tick % 2 === 0) {
+          pushEvent(feedEvents[Math.floor(Math.random() * feedEvents.length)]);
+        }
+        var clock = document.getElementById('clock');
+        clock.textContent = currentTime();
+      }
+
+      document.getElementById('refresh').addEventListener('click', function () {
+        refresh(true);
+        showToast('数据已刷新');
+      });
+
+      document.getElementById('range').addEventListener('click', function (event) {
+        var button = event.target.closest('button[data-range]');
+        if (!button) return;
+        this.querySelectorAll('button').forEach(function (item) { item.classList.remove('active'); });
+        button.classList.add('active');
+        state.range = Number(button.getAttribute('data-range'));
+        state.series = buildData(state.range);
+        hoverIndex = -1;
+        tooltip.style.opacity = 0;
+        refresh(false);
+        showToast('已切换到最近 ' + state.range + ' 天');
+      });
+
+      var toast = document.getElementById('toast');
+      var toastTimer;
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 1800);
+      }
+
+      // 初始化
+      renderKpis(true);
+      animateTrend();
+      animateDonut();
+      renderBars();
+      document.getElementById('clock').textContent = currentTime();
+      setInterval(function () { refresh(true); }, 3000);
+
+      // 尺寸变化重绘
+      if ('ResizeObserver' in window) {
+        var observer = new ResizeObserver(function () {
+          drawTrend(1);
+          drawDonut(1);
+          renderKpis(false);
+        });
+        observer.observe(document.body);
+      } else {
+        window.addEventListener('resize', function () {
+          drawTrend(1);
+          drawDonut(1);
+          renderKpis(false);
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebGL 与富媒体 · Spectrum</title>
+  <meta name="description" content="PowerWiki 沙箱 HTML 演示：WebGL 着色器立方体、Canvas 粒子星群、CSS 3D、WebAudio 合成器与 SVG 动画。">
+  <meta name="powerwiki-render" content="sandbox">
+  <style>
+    :root {
+      --bg: #06070f;
+      --panel: rgba(16, 20, 38, .72);
+      --line: rgba(148, 163, 184, .13);
+      --text: #e8ecf9;
+      --muted: #8d9ab8;
+      --cyan: #4de2ff;
+      --violet: #9b7bff;
+      --pink: #ff6ec7;
+      --lime: #9dff8a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background:
+        radial-gradient(900px 500px at 78% -8%, rgba(77, 226, 255, .12), transparent 60%),
+        radial-gradient(700px 420px at 8% 18%, rgba(155, 123, 255, .14), transparent 55%),
+        var(--bg);
+      color: var(--text); line-height: 1.6; min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      padding: 0 clamp(14px, 4vw, 40px) 48px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .nav {
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      padding: 18px 2px 14px; position: sticky; top: 0; z-index: 20;
+      background: linear-gradient(180deg, rgba(6, 7, 15, .92), rgba(6, 7, 15, .55) 72%, transparent);
+      backdrop-filter: blur(6px);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 750; letter-spacing: .2px; }
+    .mark {
+      width: 32px; height: 32px; border-radius: 9px;
+      background: conic-gradient(from 210deg, #4de2ff, #9b7bff, #ff6ec7, #9dff8a, #4de2ff);
+      box-shadow: 0 0 26px rgba(77, 226, 255, .35);
+    }
+    .nav-links { display: flex; gap: 18px; font-size: 13px; color: var(--muted); }
+    .nav-links a { color: inherit; text-decoration: none; transition: color .2s; }
+    .nav-links a:hover { color: var(--cyan); }
+
+    .hero { padding: clamp(34px, 6vw, 74px) 0 40px; max-width: 760px; }
+    .kicker {
+      display: inline-flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: 1.4px;
+      text-transform: uppercase; color: var(--cyan); font-weight: 700;
+    }
+    .kicker::before { content: ""; width: 24px; height: 1px; background: linear-gradient(90deg, var(--cyan), transparent); }
+    h1 {
+      margin: 16px 0 16px; font-size: clamp(34px, 5.6vw, 62px); line-height: 1.06;
+      letter-spacing: -1.8px; font-weight: 820;
+    }
+    .shine {
+      background: linear-gradient(100deg, #4de2ff 0%, #9b7bff 45%, #ff6ec7 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .hero p { color: var(--muted); max-width: 620px; font-size: clamp(14px, 1.6vw, 17px); }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+    .chip {
+      font-size: 12px; color: #b8c4e2; padding: 6px 12px; border-radius: 999px;
+      border: 1px solid var(--line); background: rgba(148, 163, 184, .05);
+    }
+
+    section.demo { margin-top: clamp(26px, 4vw, 46px); }
+    .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+    .section-head h2 { font-size: clamp(18px, 2.2vw, 23px); letter-spacing: -.4px; }
+    .section-head p { color: var(--muted); font-size: 12.5px; }
+    .hint { font-size: 11.5px; color: #6b7a99; }
+    .card {
+      position: relative; border-radius: 18px; border: 1px solid var(--line);
+      background: var(--panel); backdrop-filter: blur(12px); overflow: hidden;
+    }
+    .webgl-card { height: clamp(340px, 48vh, 520px); }
+    .webgl-card canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+    .webgl-card canvas:active { cursor: grabbing; }
+    .webgl-overlay {
+      position: absolute; inset: auto 0 0 0; padding: 16px 20px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: linear-gradient(180deg, transparent, rgba(4, 6, 14, .78));
+      pointer-events: none; font-size: 12px; color: var(--muted);
+    }
+    .webgl-overlay b { color: var(--text); font-weight: 600; }
+    .badge-live { display: inline-flex; align-items: center; gap: 7px; color: var(--lime); font-weight: 700; font-size: 11.5px; }
+    .badge-live i { width: 6px; height: 6px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 12px var(--lime); }
+    .webgl-fallback {
+      display: none; position: absolute; inset: 0; place-items: center; text-align: center;
+      padding: 30px; color: var(--muted); font-size: 13px;
+    }
+    .webgl-fallback.show { display: grid; }
+
+    .two-col { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; }
+    .particles-card { height: clamp(300px, 42vh, 420px); }
+    .particles-card canvas { display: block; width: 100%; height: 100%; }
+    .particles-card .corner {
+      position: absolute; top: 14px; left: 16px; font-size: 11px; color: #7d8cae;
+      letter-spacing: .6px; text-transform: uppercase;
+    }
+
+    .cube-stage {
+      height: clamp(300px, 42vh, 420px); display: grid; place-items: center;
+      perspective: 900px;
+    }
+    .cube {
+      position: relative; width: 132px; height: 132px; transform-style: preserve-3d;
+      animation: spin 16s linear infinite;
+    }
+    .cube.paused { animation-play-state: paused; }
+    @keyframes spin {
+      0% { transform: rotateX(-18deg) rotateY(0deg); }
+      100% { transform: rotateX(-18deg) rotateY(360deg); }
+    }
+    .face {
+      position: absolute; inset: 0; display: grid; place-items: center;
+      border: 1px solid rgba(77, 226, 255, .4); border-radius: 12px;
+      background: linear-gradient(135deg, rgba(18, 26, 50, .96), rgba(12, 17, 36, .96));
+      box-shadow: inset 0 0 34px rgba(77, 226, 255, .12);
+      color: var(--cyan); font-size: 12px; letter-spacing: 1.5px; font-weight: 700;
+      backface-visibility: hidden;
+    }
+    .f1 { transform: translateZ(66px); }
+    .f2 { transform: rotateY(180deg) translateZ(66px); color: var(--violet); border-color: rgba(155, 123, 255, .4); }
+    .f3 { transform: rotateY(90deg) translateZ(66px); color: var(--pink); border-color: rgba(255, 110, 199, .4); }
+    .f4 { transform: rotateY(-90deg) translateZ(66px); color: var(--lime); border-color: rgba(157, 255, 138, .4); }
+    .f5 { transform: rotateX(90deg) translateZ(66px); color: #ffd166; border-color: rgba(255, 209, 102, .35); }
+    .f6 { transform: rotateX(-90deg) translateZ(66px); color: #fff; border-color: rgba(255, 255, 255, .25); }
+    .cube-caption { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; font-size: 11.5px; color: #6b7a99; }
+
+    /* 音频 */
+    .audio-card { padding: 20px; }
+    .viz { height: 110px; display: block; width: 100%; margin-bottom: 16px; }
+    .pads { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .pad {
+      position: relative; padding: 16px 8px 14px; border-radius: 13px; cursor: pointer;
+      border: 1px solid var(--line); background: rgba(148, 163, 184, .05);
+      color: var(--text); font: inherit; font-size: 12.5px; transition: transform .15s, border-color .2s, background .2s;
+    }
+    .pad:hover { transform: translateY(-2px); border-color: rgba(77, 226, 255, .4); background: rgba(77, 226, 255, .08); }
+    .pad.active { background: rgba(77, 226, 255, .16); border-color: var(--cyan); }
+    .pad .note { display: block; font-size: 10.5px; color: #6b7a99; margin-top: 3px; letter-spacing: 1px; }
+    .audio-note { font-size: 11.5px; color: #6b7a99; margin-top: 12px; }
+
+    /* SVG 动画 */
+    .svg-card { padding: 22px; display: grid; place-items: center; }
+    .svg-card svg { width: 100%; max-width: 680px; height: auto; overflow: visible; }
+    .draw-line {
+      fill: none; stroke-linecap: round; stroke-linejoin: round;
+      stroke-dasharray: 1000; stroke-dashoffset: 1000;
+      animation: draw 2.6s cubic-bezier(.4, 0, .2, 1) forwards;
+    }
+    .draw-line.delay-1 { animation-delay: .25s; }
+    .draw-line.delay-2 { animation-delay: .5s; }
+    .draw-dot { opacity: 0; animation: pop .5s ease forwards; }
+    .draw-dot.d1 { animation-delay: 1.1s; }
+    .draw-dot.d2 { animation-delay: 1.6s; }
+    .draw-dot.d3 { animation-delay: 2.2s; }
+    .draw-dot.d4 { animation-delay: 2.6s; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+    @keyframes pop { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: scale(1); } }
+    .svg-label { font-size: 11px; fill: #7d8cae; }
+
+    footer { margin-top: 46px; padding-top: 18px; border-top: 1px solid var(--line); color: #56627d; font-size: 12px; }
+
+    @media (max-width: 900px) {
+      .two-col { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 520px) {
+      .pads { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition-duration: .001s !important; }
+      .cube { animation: none; transform: rotateX(-18deg) rotateY(24deg); }
+      .draw-line { stroke-dashoffset: 0; }
+      .draw-dot { opacity: 1; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="#top" style="color:inherit;text-decoration:none"><span class="mark"></span>Spectrum Lab</a>
+    <div class="nav-links">
+      <a href="#webgl">WebGL</a>
+      <a href="#particles">粒子</a>
+      <a href="#audio">声音</a>
+      <a href="#svg">SVG</a>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <span class="kicker">Sandboxed HTML</span>
+    <h1>让文档拥有<br><span class="shine">实时渲染的画面</span></h1>
+    <p>这个页面在 PowerWiki 文章内的沙箱 iframe 中运行：WebGL 着色器、粒子物理、WebAudio 合成与 SVG 描边动画全部由页面自身驱动。</p>
+    <div class="chips">
+      <span class="chip">WebGL 1.0</span>
+      <span class="chip">Canvas 2D</span>
+      <span class="chip">CSS 3D</span>
+      <span class="chip">WebAudio</span>
+      <span class="chip">SVG Animation</span>
+    </div>
+  </header>
+
+  <section class="demo" id="webgl">
+    <div class="section-head">
+      <div>
+        <h2>01 · WebGL 着色器立方体</h2>
+        <p>原始 WebGL，无任何第三方库；拖拽旋转，松手后自动回旋。</p>
+      </div>
+      <span class="hint">拖拽画布试试</span>
+    </div>
+    <div class="card webgl-card">
+      <canvas id="gl" aria-label="WebGL 立方体"></canvas>
+      <div class="webgl-fallback" id="gl-fallback">当前环境不支持 WebGL，已回退到静态视觉。</div>
+      <div class="webgl-overlay">
+        <span><b>gl_FragColor</b> · 顶点着色 + 片元渐变</span>
+        <span class="badge-live"><i></i>实时渲染</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo" id="particles">
+    <div class="section-head">
+      <div>
+        <h2>02 · Canvas 粒子星群</h2>
+        <p>邻近粒子自动连线，鼠标靠近产生排斥。</p>
+      </div>
+      <span class="hint">移动鼠标</span>
+    </div>
+    <div class="two-col">
+      <div class="card particles-card">
+        <span class="corner">particles / constellation</span>
+        <canvas id="particle-canvas" aria-label="粒子星群"></canvas>
+      </div>
+      <div class="card particles-card" style="display:grid;place-items:center">
+        <div class="cube-stage">
+          <div class="cube" id="cube">
+            <div class="face f1">HTML</div>
+            <div class="face f2">CSS</div>
+            <div class="face f3">JS</div>
+            <div class="face f4">GL</div>
+            <div class="face f5">SVG</div>
+            <div class="face f6">AUDIO</div>
+          </div>
+        </div>
+        <span class="cube-caption">CSS 3D 立方体 · 纯 transform 实现</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo" id="audio">
+    <div class="section-head">
+      <div>
+        <h2>03 · WebAudio 合成器</h2>
+        <p>点击音垫发声，频谱条由 AnalyserNode 实时驱动。</p>
+      </div>
+      <span class="hint">需要一次点击授权</span>
+    </div>
+    <div class="card audio-card">
+      <canvas class="viz" id="viz" aria-label="音频频谱"></canvas>
+      <div class="pads" id="pads">
+        <button class="pad" data-freq="261.63">Do<span class="note">C4 · 261.6 Hz</span></button>
+        <button class="pad" data-freq="329.63">Re<span class="note">E4 · 329.6 Hz</span></button>
+        <button class="pad" data-freq="392.00">Mi<span class="note">G4 · 392.0 Hz</span></button>
+        <button class="pad" data-freq="523.25">Sol<span class="note">C5 · 523.3 Hz</span></button>
+      </div>
+      <p class="audio-note" id="audio-note">声音只在本地合成，不会请求任何网络资源。</p>
+    </div>
+  </section>
+
+  <section class="demo" id="svg">
+    <div class="section-head">
+      <div>
+        <h2>04 · SVG 描边动画</h2>
+        <p>stroke-dasharray 与 stroke-dashoffset 驱动的路径描绘。</p>
+      </div>
+    </div>
+    <div class="card svg-card">
+      <svg viewBox="0 0 680 200" role="img" aria-label="SVG 路径动画">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#4de2ff"/>
+            <stop offset="55%" stop-color="#9b7bff"/>
+            <stop offset="100%" stop-color="#ff6ec7"/>
+          </linearGradient>
+          <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#9dff8a"/>
+            <stop offset="100%" stop-color="#4de2ff"/>
+          </linearGradient>
+        </defs>
+        <path class="draw-line" d="M20 150 C 110 150, 120 40, 210 40 S 320 150, 400 150 S 500 40, 590 40 S 650 96, 660 70"
+              stroke="url(#g1)" stroke-width="3"/>
+        <path class="draw-line delay-1" d="M20 170 H 660" stroke="rgba(148,163,184,.28)" stroke-width="1"/>
+        <path class="draw-line delay-2" d="M20 100 C 160 100, 220 175, 340 120 S 520 40, 660 110"
+              stroke="url(#g2)" stroke-width="2" stroke-dasharray="6 6"/>
+        <circle class="draw-dot d1" cx="210" cy="40" r="5" fill="#4de2ff"/>
+        <circle class="draw-dot d2" cx="400" cy="150" r="5" fill="#9b7bff"/>
+        <circle class="draw-dot d3" cx="590" cy="40" r="5" fill="#ff6ec7"/>
+        <circle class="draw-dot d4" cx="340" cy="120" r="4" fill="#9dff8a"/>
+        <text class="svg-label" x="20" y="192">path · dashoffset animation</text>
+      </svg>
+    </div>
+  </section>
+
+  <footer>Spectrum Lab · PowerWiki 沙箱 HTML 演示 · 所有资源均内联，无外部请求</footer>
+
+  <script>
+    (function () {
+      var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // =====================================================================
+      // 1. WebGL 立方体
+      // =====================================================================
+      (function initWebGL() {
+        var canvas = document.getElementById('gl');
+        var fallback = document.getElementById('gl-fallback');
+        var gl = null;
+        try {
+          gl = canvas.getContext('webgl', { antialias: true, alpha: true }) ||
+               canvas.getContext('experimental-webgl', { antialias: true, alpha: true });
+        } catch (error) { gl = null; }
+        if (!gl) {
+          fallback.classList.add('show');
+          return;
+        }
+
+        var vertexSource = [
+          'attribute vec3 aPosition;',
+          'attribute vec3 aColor;',
+          'uniform mat4 uMatrix;',
+          'varying vec3 vColor;',
+          'varying float vDepth;',
+          'void main() {',
+          '  vColor = aColor;',
+          '  vec4 view = uMatrix * vec4(aPosition, 1.0);',
+          '  vDepth = view.z;',
+          '  gl_Position = view;',
+          '}'
+        ].join('\n');
+
+        var fragmentSource = [
+          'precision mediump float;',
+          'varying vec3 vColor;',
+          'varying float vDepth;',
+          'void main() {',
+          '  float glow = 0.78 + 0.22 * sin(vDepth * 2.2);',
+          '  gl_FragColor = vec4(vColor * glow, 1.0);',
+          '}'
+        ].join('\n');
+
+        function compile(type, source) {
+          var shader = gl.createShader(type);
+          gl.shaderSource(shader, source);
+          gl.compileShader(shader);
+          if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            throw new Error(gl.getShaderInfoLog(shader) || 'shader compile failed');
+          }
+          return shader;
+        }
+
+        var program;
+        try {
+          program = gl.createProgram();
+          gl.attachShader(program, compile(gl.VERTEX_SHADER, vertexSource));
+          gl.attachShader(program, compile(gl.FRAGMENT_SHADER, fragmentSource));
+          gl.linkProgram(program);
+          if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error('link failed');
+        } catch (error) {
+          fallback.textContent = 'WebGL 初始化失败：' + error.message;
+          fallback.classList.add('show');
+          return;
+        }
+        gl.useProgram(program);
+
+        // 立方体 6 个面，每个面 2 个三角形
+        var palette = [
+          [0.30, 0.89, 1.00],
+          [0.61, 0.48, 1.00],
+          [1.00, 0.43, 0.78],
+          [0.62, 1.00, 0.54],
+          [1.00, 0.82, 0.40],
+          [0.86, 0.93, 1.00]
+        ];
+        var faces = [
+          [[-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]],
+          [[1, -1, -1], [-1, -1, -1], [-1, 1, -1], [1, 1, -1]],
+          [[1, -1, 1], [1, -1, -1], [1, 1, -1], [1, 1, 1]],
+          [[-1, -1, -1], [-1, -1, 1], [-1, 1, 1], [-1, 1, -1]],
+          [[-1, 1, 1], [1, 1, 1], [1, 1, -1], [-1, 1, -1]],
+          [[-1, -1, -1], [1, -1, -1], [1, -1, 1], [-1, -1, 1]]
+        ];
+        var positions = [], colors = [];
+        faces.forEach(function (quad, faceIndex) {
+          var color = palette[faceIndex];
+          var order = [0, 1, 2, 0, 2, 3];
+          order.forEach(function (index) {
+            positions.push(quad[index][0] * 0.78, quad[index][1] * 0.78, quad[index][2] * 0.78);
+            colors.push(color[0], color[1], color[2]);
+          });
+        });
+
+        function buffer(data) {
+          var result = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, result);
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+          return result;
+        }
+        var positionBuffer = buffer(positions);
+        var colorBuffer = buffer(colors);
+        var aPosition = gl.getAttribLocation(program, 'aPosition');
+        var aColor = gl.getAttribLocation(program, 'aColor');
+        var uMatrix = gl.getUniformLocation(program, 'uMatrix');
+
+        // 极简矩阵工具
+        function multiply(a, b) {
+          var out = new Float32Array(16);
+          for (var i = 0; i < 4; i++) {
+            for (var j = 0; j < 4; j++) {
+              out[i * 4 + j] = a[j] * b[i * 4] + a[4 + j] * b[i * 4 + 1] + a[8 + j] * b[i * 4 + 2] + a[12 + j] * b[i * 4 + 3];
+            }
+          }
+          return out;
+        }
+        function perspective(fov, aspect, near, far) {
+          var f = 1 / Math.tan(fov / 2);
+          var nf = 1 / (near - far);
+          return new Float32Array([
+            f / aspect, 0, 0, 0,
+            0, f, 0, 0,
+            0, 0, (far + near) * nf, -1,
+            0, 0, 2 * far * near * nf, 0
+          ]);
+        }
+        function rotationX(angle) {
+          var c = Math.cos(angle), s = Math.sin(angle);
+          return new Float32Array([1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1]);
+        }
+        function rotationY(angle) {
+          var c = Math.cos(angle), s = Math.sin(angle);
+          return new Float32Array([c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1]);
+        }
+        function translationZ(distance) {
+          return new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, distance, 1]);
+        }
+
+        var rotation = { x: -0.5, y: 0.6 };
+        var target = { x: -0.5, y: 0.6 };
+        var dragging = false, lastX = 0, lastY = 0;
+
+        canvas.addEventListener('pointerdown', function (event) {
+          dragging = true;
+          lastX = event.clientX;
+          lastY = event.clientY;
+          canvas.setPointerCapture && canvas.setPointerCapture(event.pointerId);
+        });
+        canvas.addEventListener('pointermove', function (event) {
+          if (!dragging) return;
+          target.y += (event.clientX - lastX) * 0.008;
+          target.x += (event.clientY - lastY) * 0.008;
+          target.x = Math.max(-1.4, Math.min(1.4, target.x));
+          lastX = event.clientX;
+          lastY = event.clientY;
+        });
+        window.addEventListener('pointerup', function () { dragging = false; });
+
+        function resize() {
+          var rect = canvas.getBoundingClientRect();
+          var dpr = Math.min(window.devicePixelRatio || 1, 2);
+          var width = Math.max(1, Math.round(rect.width * dpr));
+          var height = Math.max(1, Math.round(rect.height * dpr));
+          if (canvas.width !== width || canvas.height !== height) {
+            canvas.width = width;
+            canvas.height = height;
+          }
+          gl.viewport(0, 0, width, height);
+          return { width: rect.width, height: rect.height };
+        }
+
+        var start = performance.now();
+        function render(now) {
+          var size = resize();
+          gl.clearColor(0.02, 0.025, 0.06, 0);
+          gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+          gl.enable(gl.DEPTH_TEST);
+
+          if (!dragging && !reduceMotion) target.y += 0.004;
+          rotation.x += (target.x - rotation.x) * 0.08;
+          rotation.y += (target.y - rotation.y) * 0.08;
+
+          var t = (now - start) / 1000;
+          var bob = reduceMotion ? 0 : Math.sin(t * 1.4) * 0.12;
+          // 相机在原点朝 -Z 看，先把立方体推到视距内再旋转
+          var matrix = multiply(
+            perspective(0.9, size.width / Math.max(1, size.height), 0.1, 100),
+            translationZ(-4.6)
+          );
+          matrix = multiply(matrix, rotationX(rotation.x + bob));
+          matrix = multiply(matrix, rotationY(rotation.y));
+
+          gl.uniformMatrix4fv(uMatrix, false, matrix);
+          gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+          gl.enableVertexAttribArray(aPosition);
+          gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
+          gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+          gl.enableVertexAttribArray(aColor);
+          gl.vertexAttribPointer(aColor, 3, gl.FLOAT, false, 0, 0);
+          gl.drawArrays(gl.TRIANGLES, 0, positions.length / 3);
+          requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+      })();
+
+      // =====================================================================
+      // 2. Canvas 粒子星群
+      // =====================================================================
+      (function initParticles() {
+        var canvas = document.getElementById('particle-canvas');
+        if (!canvas || !canvas.getContext) return;
+        var ctx = canvas.getContext('2d');
+        var width = 0, height = 0, dpr = 1;
+        var points = [];
+        var pointer = { x: -9999, y: -9999 };
+        var colors = ['#4de2ff', '#9b7bff', '#ff6ec7', '#9dff8a'];
+
+        function resize() {
+          var rect = canvas.getBoundingClientRect();
+          dpr = Math.min(window.devicePixelRatio || 1, 2);
+          width = Math.max(1, rect.width);
+          height = Math.max(1, rect.height);
+          canvas.width = Math.round(width * dpr);
+          canvas.height = Math.round(height * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          var count = Math.round(Math.min(90, Math.max(36, (width * height) / 7000)));
+          points = [];
+          for (var i = 0; i < count; i++) {
+            points.push({
+              x: Math.random() * width,
+              y: Math.random() * height,
+              vx: (Math.random() - 0.5) * 0.45,
+              vy: (Math.random() - 0.5) * 0.45,
+              r: 1 + Math.random() * 1.8,
+              color: colors[i % colors.length]
+            });
+          }
+        }
+
+        canvas.addEventListener('pointermove', function (event) {
+          var rect = canvas.getBoundingClientRect();
+          pointer.x = event.clientX - rect.left;
+          pointer.y = event.clientY - rect.top;
+        });
+        canvas.addEventListener('pointerleave', function () {
+          pointer.x = -9999;
+          pointer.y = -9999;
+        });
+
+        function step() {
+          ctx.clearRect(0, 0, width, height);
+
+          points.forEach(function (point) {
+            var dx = point.x - pointer.x;
+            var dy = point.y - pointer.y;
+            var distance = Math.hypot(dx, dy);
+            if (distance < 110 && distance > 0.01) {
+              var force = (110 - distance) / 110 * 0.9;
+              point.vx += (dx / distance) * force;
+              point.vy += (dy / distance) * force;
+            }
+            point.vx *= 0.985;
+            point.vy *= 0.985;
+            point.x += point.vx;
+            point.y += point.vy;
+            if (point.x < 0 || point.x > width) { point.vx *= -1; point.x = Math.max(0, Math.min(width, point.x)); }
+            if (point.y < 0 || point.y > height) { point.vy *= -1; point.y = Math.max(0, Math.min(height, point.y)); }
+          });
+
+          // 连线
+          for (var i = 0; i < points.length; i++) {
+            for (var j = i + 1; j < points.length; j++) {
+              var a = points[i], b = points[j];
+              var distance = Math.hypot(a.x - b.x, a.y - b.y);
+              if (distance < 104) {
+                ctx.strokeStyle = 'rgba(120, 180, 255,' + (0.16 * (1 - distance / 104)).toFixed(3) + ')';
+                ctx.lineWidth = 0.8;
+                ctx.beginPath();
+                ctx.moveTo(a.x, a.y);
+                ctx.lineTo(b.x, b.y);
+                ctx.stroke();
+              }
+            }
+          }
+
+          // 粒子
+          points.forEach(function (point) {
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, point.r, 0, Math.PI * 2);
+            ctx.fillStyle = point.color;
+            ctx.globalAlpha = 0.9;
+            ctx.fill();
+            ctx.globalAlpha = 0.16;
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, point.r * 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+          });
+
+          requestAnimationFrame(step);
+        }
+
+        resize();
+        if (reduceMotion) {
+          // 静态一帧
+          ctx.clearRect(0, 0, width, height);
+          points.forEach(function (point) {
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, point.r, 0, Math.PI * 2);
+            ctx.fillStyle = point.color;
+            ctx.fill();
+          });
+        } else {
+          requestAnimationFrame(step);
+        }
+        window.addEventListener('resize', resize);
+      })();
+
+      // =====================================================================
+      // 3. WebAudio 合成器 + 频谱
+      // =====================================================================
+      (function initAudio() {
+        var pads = document.getElementById('pads');
+        if (!pads) return;
+        var viz = document.getElementById('viz');
+        var note = document.getElementById('audio-note');
+        var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        var context = null, analyser = null, data = null, started = false, rafId = 0;
+
+        function fitViz() {
+          var rect = viz.getBoundingClientRect();
+          var dpr = Math.min(window.devicePixelRatio || 1, 2);
+          viz.width = Math.max(1, Math.round(rect.width * dpr));
+          viz.height = Math.max(1, Math.round(rect.height * dpr));
+          var ctx = viz.getContext('2d');
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          return { ctx: ctx, width: rect.width, height: rect.height };
+        }
+
+        function drawIdle() {
+          if (!viz || !viz.getContext) return;
+          var fitted = fitViz();
+          var count = 48;
+          for (var i = 0; i < count; i++) {
+            var x = (fitted.width / count) * i + 2;
+            var barHeight = 3 + Math.abs(Math.sin(i * 0.5)) * 4;
+            fitted.ctx.fillStyle = 'rgba(77, 226, 255, 0.18)';
+            fitted.ctx.fillRect(x, fitted.height - barHeight, fitted.width / count - 4, barHeight);
+          }
+        }
+
+        function drawSpectrum() {
+          if (!analyser || !viz) return;
+          analyser.getByteFrequencyData(data);
+          var fitted = fitViz();
+          var ctx = fitted.ctx;
+          ctx.clearRect(0, 0, fitted.width, fitted.height);
+          var bars = 48;
+          var step = Math.floor(data.length / bars);
+          for (var i = 0; i < bars; i++) {
+            var value = data[i * step] / 255;
+            var barHeight = Math.max(2, value * fitted.height * 0.92);
+            var x = (fitted.width / bars) * i + 2;
+            var gradient = ctx.createLinearGradient(0, fitted.height - barHeight, 0, fitted.height);
+            gradient.addColorStop(0, '#4de2ff');
+            gradient.addColorStop(0.55, '#9b7bff');
+            gradient.addColorStop(1, '#ff6ec7');
+            ctx.fillStyle = gradient;
+            ctx.globalAlpha = 0.35 + value * 0.65;
+            ctx.fillRect(x, fitted.height - barHeight, fitted.width / bars - 4, barHeight);
+          }
+          ctx.globalAlpha = 1;
+          rafId = requestAnimationFrame(drawSpectrum);
+        }
+
+        function ensureContext() {
+          if (context) return true;
+          if (!AudioContextClass) {
+            note.textContent = '当前浏览器不支持 WebAudio，已跳过声音演示。';
+            return false;
+          }
+          try {
+            context = new AudioContextClass();
+            analyser = context.createAnalyser();
+            analyser.fftSize = 256;
+            analyser.smoothingTimeConstant = 0.78;
+            data = new Uint8Array(analyser.frequencyBinCount);
+          } catch (error) {
+            note.textContent = '音频初始化失败：' + error.message;
+            return false;
+          }
+          return true;
+        }
+
+        function play(frequency) {
+          if (!ensureContext()) return;
+          if (context.state === 'suspended') context.resume();
+          if (!started) {
+            started = true;
+            cancelAnimationFrame(rafId);
+            drawSpectrum();
+            note.textContent = '正在播放：声音由 OscillatorNode 实时合成。';
+          }
+          var now = context.currentTime;
+          var oscillator = context.createOscillator();
+          var gain = context.createGain();
+          var filter = context.createBiquadFilter();
+          oscillator.type = 'triangle';
+          oscillator.frequency.setValueAtTime(frequency, now);
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(2400, now);
+          gain.gain.setValueAtTime(0.0001, now);
+          gain.gain.exponentialRampToValueAtTime(0.22, now + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.9);
+          oscillator.connect(filter);
+          filter.connect(gain);
+          gain.connect(analyser);
+          analyser.connect(context.destination);
+          oscillator.start(now);
+          oscillator.stop(now + 0.95);
+          oscillator.onended = function () {
+            try { oscillator.disconnect(); filter.disconnect(); gain.disconnect(); } catch (error) {}
+          };
+        }
+
+        pads.addEventListener('click', function (event) {
+          var pad = event.target.closest('.pad');
+          if (!pad) return;
+          var frequency = Number(pad.getAttribute('data-freq'));
+          pads.querySelectorAll('.pad').forEach(function (item) { item.classList.remove('active'); });
+          pad.classList.add('active');
+          setTimeout(function () { pad.classList.remove('active'); }, 320);
+          play(frequency);
+        });
+
+        drawIdle();
+        window.addEventListener('resize', function () {
+          if (!started) drawIdle();
+        });
+      })();
+
+      // =====================================================================
+      // 4. CSS 3D 立方体：点击暂停 / 继续
+      // =====================================================================
+      (function initCube() {
+        var cube = document.getElementById('cube');
+        if (!cube) return;
+        cube.style.cursor = 'pointer';
+        cube.addEventListener('click', function () {
+          cube.classList.toggle('paused');
+        });
+        cube.setAttribute('title', '点击暂停或继续旋转');
+      })();
+    })();
+  </script>
+</body>
+</html>
