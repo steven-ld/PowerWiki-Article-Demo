@@ -1,9 +1,9 @@
 ---
 title: PowerWiki 用户指南
-description: PowerWiki v1.6.0 功能体验、部署与使用指南
+description: PowerWiki v1.6.1 功能体验、部署与使用指南
 author: PowerWiki Team
 date: 2026-02-07
-updated: 2026-11-09
+updated: 2026-11-10
 tags: [PowerWiki, 教程]
 ---
 
@@ -11,7 +11,7 @@ tags: [PowerWiki, 教程]
 
 将 Git 仓库里的 Markdown 与 HTML 变成可浏览、可分享的知识库：左侧查找文档，右侧定位章节，中间阅读正文。
 
-> 本站本身就是 PowerWiki 的演示。当前文档对应 **v1.6.0**，查看 [版本历史](/post/版本历史.md) 或 [GitHub Release](https://github.com/steven-ld/PowerWiki/releases/tag/v1.6.0)。
+> 本站本身就是 PowerWiki 的演示，首页由仓库里的 HTML 页面 `README.html` 提供。当前文档对应 **v1.6.1**，查看 [版本历史](/post/版本历史.md) 或 [GitHub Release](https://github.com/steven-ld/PowerWiki/releases/tag/v1.6.1)。
 
 ![PowerWiki 首页与双侧导航](./images/home.jpg)
 
@@ -26,12 +26,14 @@ tags: [PowerWiki, 教程]
 | 图片 | [本地图片](/post/01-功能演示/本地图片演示.md) | 点击图片查看大图，再切换暗夜模式 |
 | 缓存机制 | [性能与缓存](/post/02-核心功能/性能与缓存.md) | 了解更新何时生效、重复阅读如何复用缓存 |
 
-## v1.6.0 更新了什么
+## v1.6.1 更新了什么
 
-- 仓库里的 HTML 与 Markdown 一起成为文章，完整页面可在隔离沙箱中运行脚本与样式。
-- 沙箱页面跟随站点明暗主题，HTML 文章工具条新增「全屏」入口。
-- 稳定文章地址与 SEO：`slug` / `aliases` 保持链接不变，canonical、Open Graph、RSS 与 sitemap 使用同一地址。
-- 新增上一篇 / 下一篇导航与自定义 404 页面。
+- HTML 文章与 HTML 首页改为**原地沉浸式阅读**：在当前页面展开为全屏画布，不再跳转新页面，按 Esc 或右上角按钮返回。
+- 首帧即沉浸：服务端直接输出展开态，HTML 首页和文章加载时不再出现「先窄后宽」的宽度跳变。
+- 沙箱高度跟随内容：非沉浸场景下 iframe 按内容展开，页面内部不再叠一条滚动条。
+- 首屏性能：代码高亮样式改为非阻塞加载，Mermaid 只在含图文章按需下载；首页不再重复请求同一份 HTML。
+
+v1.6.0 引入的 HTML 文章、隔离沙箱、稳定地址与 SEO 仍然有效，详见 [版本历史](/post/版本历史.md)。
 
 ## 快速开始
 
@@ -96,6 +98,8 @@ npm start
 }
 ```
 
+`pages.home` 与 `pages.about` 既可以是 Markdown，也可以是仓库里的 HTML 页面。本站首页就是 `README.html`：用 HTML 排版整页，再由 PowerWiki 以沉浸布局打开。
+
 | 选项 | 说明 | 默认值 |
 |------|------|--------|
 | `gitRepo` | Git 仓库 URL | - |
@@ -148,7 +152,7 @@ PNG、JPG/JPEG、GIF、WEBP、SVG、ICO
 
 ```
 your-wiki-repo/
-├── README.md              # 首页
+├── README.md              # 首页（Markdown 或 HTML 均可）
 ├── ABOUT.md               # 关于页面
 ├── images/                # 全局图片目录
 ├── 架构设计/              # 分类文件夹
