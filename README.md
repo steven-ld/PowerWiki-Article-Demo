@@ -1,6 +1,6 @@
 ---
 title: PowerWiki 用户指南
-description: PowerWiki v1.6.1 功能体验、部署与使用指南
+description: PowerWiki v1.6.2 功能体验、部署与使用指南
 author: PowerWiki Team
 date: 2026-02-07
 updated: 2026-11-10
@@ -11,7 +11,7 @@ tags: [PowerWiki, 教程]
 
 将 Git 仓库里的 Markdown 与 HTML 变成可浏览、可分享的知识库：左侧查找文档，右侧定位章节，中间阅读正文。
 
-> 本站本身就是 PowerWiki 的演示，首页由仓库里的 HTML 页面 `README.html` 提供。当前文档对应 **v1.6.1**，查看 [版本历史](/post/版本历史.md) 或 [GitHub Release](https://github.com/steven-ld/PowerWiki/releases/tag/v1.6.1)。
+> 本站本身就是 PowerWiki 的演示，首页由仓库里的 HTML 页面 `README.html` 提供。当前文档对应 **v1.6.2**，查看 [版本历史](/post/版本历史.md) 或 [GitHub Release](https://github.com/steven-ld/PowerWiki/releases/tag/v1.6.2)。
 
 ![PowerWiki 首页与双侧导航](./images/home.jpg)
 
@@ -25,6 +25,11 @@ tags: [PowerWiki, 教程]
 | 图表 | [时序图](/post/01-功能演示/图表演示/时序图演示.md) | 查看用户、浏览器与服务的交互 |
 | 图片 | [本地图片](/post/01-功能演示/本地图片演示.md) | 点击图片查看大图，再切换暗夜模式 |
 | 缓存机制 | [性能与缓存](/post/02-核心功能/性能与缓存.md) | 了解更新何时生效、重复阅读如何复用缓存 |
+
+## v1.6.2 更新了什么
+
+- 修复**普通 HTML 文章无法滚动**：没有沙箱标记的 HTML 文章不再套用沉浸布局，恢复整页滚动，「全屏」也改回直接打开完整页面。
+- 沙箱 HTML 页面（数据看板、WebGL、文档站等）与 HTML 首页仍按沉浸式阅读打开，这部分行为不变。
 
 ## v1.6.1 更新了什么
 

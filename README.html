@@ -559,7 +559,7 @@
   <div class="wrap">
     <p class="eyebrow" data-reveal style="--i:0">
       PowerWiki ·
-      <a href="https://github.com/steven-ld/PowerWiki/releases/tag/v1.6.1" target="_blank" rel="noopener noreferrer">v1.6.1</a>
+      <a href="https://github.com/steven-ld/PowerWiki/releases/tag/v1.6.2" target="_blank" rel="noopener noreferrer">v1.6.2</a>
     </p>
     <h1 data-reveal style="--i:1">把 Git 仓库<span class="accent">变成知识库</span></h1>
     <p class="deck" data-reveal style="--i:2">
@@ -599,31 +599,27 @@
   <section class="wrap" id="release">
     <div class="sec-head" data-reveal>
       <span class="idx">01</span>
-      <h2>v1.6.1 更新了什么</h2>
+      <h2>v1.6.2 更新了什么</h2>
       <a class="more" href="/post/版本历史.md" target="_top">完整版本历史 →</a>
     </div>
     <div class="release" data-reveal style="--i:1">
       <div class="ver">
-        <strong>1.6.1</strong>
+        <strong>1.6.2</strong>
         2026-11-10 ·
-        <a href="https://github.com/steven-ld/PowerWiki/releases/tag/v1.6.1" target="_blank" rel="noopener noreferrer">Release</a>
+        <a href="https://github.com/steven-ld/PowerWiki/releases/tag/v1.6.2" target="_blank" rel="noopener noreferrer">Release</a>
       </div>
       <ul>
         <li>
-          <b>原地沉浸式阅读</b>
-          HTML 文章与首页在当前页面展开，不再跳转新页面；Esc 或右上角按钮返回。
+          <b>普通 HTML 文章可滚动</b>
+          没有沙箱标记的 HTML 文章不再套用沉浸布局，恢复整页滚动，不会再卡在第一屏。
         </li>
         <li>
-          <b>首帧即沉浸</b>
-          HTML 首页与文章由服务端直接输出展开态，加载时不再出现「先窄后宽」的跳动。
+          <b>全屏行为分场景</b>
+          这类文章的「全屏」直接打开完整页面；沙箱页面与 HTML 首页仍原地沉浸。
         </li>
         <li>
-          <b>沙箱高度自适应</b>
-          非沉浸场景下 iframe 跟随内容高度，页面内部不再叠一条滚动条。
-        </li>
-        <li>
-          <b>首屏更快</b>
-          代码高亮样式改为非阻塞加载，Mermaid 只在含图文章按需下载。
+          <b>沉浸式阅读保留</b>
+          原地展开、首帧即沉浸与沙箱高度自适应等 v1.6.1 能力保持不变。
         </li>
       </ul>
     </div>
